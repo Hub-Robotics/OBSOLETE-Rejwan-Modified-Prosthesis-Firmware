@@ -1,0 +1,10 @@
+EPOS4.c:8:6:EPOS4_data_framer	8	static
+EPOS4.c:19:6:EPOS4_set_operation_mode	40	static
+EPOS4.c:74:6:EPOS4_PVM_set_velocity	40	static
+EPOS4.c:86:6:EPOS4_PVM_start	40	static
+EPOS4.c:30:6:EPOS4_enable	40	static
+EPOS4.c:55:6:EPOS4_enable2	0	static
+EPOS4.c:98:6:EPOS4_PVM_stop	40	static
+EPOS4.c:110:6:EPOS4_CST_apply_torque	40	static
+EPOS4.c:130:6:EPOS4_CST_stop	40	static
+EPOS4.c:141:6:EPOS4_clear_errors	40	static

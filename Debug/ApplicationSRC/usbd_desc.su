@@ -1,0 +1,15 @@
+usbd_desc.c:199:10:USBD_VCP_DeviceDescriptor	0	static
+usbd_desc.c:205:10:USBD_MSC_DeviceDescriptor	0	static
+usbd_desc.c:223:10:USBD_MSC_LangIDStrDescriptor	0	static
+usbd_desc.c:373:13:IntToUnicode	12	static
+usbd_desc.c:272:10:USBD_VCP_SerialStrDescriptor	8	static
+usbd_desc.c:282:10:USBD_MSC_SerialStrDescriptor	8	static
+usbd_desc.c:236:10:USBD_VCP_ProductStrDescriptor	8	static
+usbd_desc.c:242:10:USBD_MSC_ProductStrDescriptor	8	static
+usbd_desc.c:260:10:USBD_MSC_ManufacturerStrDescriptor	8	static
+usbd_desc.c:298:10:USBD_VCP_ConfigStrDescriptor	8	static
+usbd_desc.c:304:10:USBD_MSC_ConfigStrDescriptor	8	static
+usbd_desc.c:316:10:USBD_VCP_InterfaceStrDescriptor	8	static
+usbd_desc.c:322:10:USBD_MSC_InterfaceStrDescriptor	8	static
+usbd_desc.c:217:10:USBD_VCP_LangIDStrDescriptor	0	static
+usbd_desc.c:254:10:USBD_VCP_ManufacturerStrDescriptor	8	static
