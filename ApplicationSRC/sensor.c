@@ -1665,7 +1665,8 @@ void MCP_write(int adress, int data) {
 //	while (!(SPI2->SR & SPI_SR_RXNE))
 //		; //data received?
 //	LL_SPI_ReceiveData8(SPI2);
-
+	while (!(SPI2->SR & SPI_SR_TXE))
+		; //transmit buffer empty?
 	LL_GPIO_SetOutputPin(SPI2_CS_GPIO_PORT, SPI2_CS_PIN); // PA4 CS SET Active Low
 
 }
