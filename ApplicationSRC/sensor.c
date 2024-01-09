@@ -1643,30 +1643,28 @@ unsigned int WriteReg1_imu2(uint8_t adress, uint8_t data) {
 
 //void MCP_write(uint8_t adress, uint8_t data)
 void MCP_write(int adress, int data) {
+
+	// Activate chip select
 	LL_GPIO_ResetOutputPin(SPI2_CS_GPIO_PORT, SPI2_CS_PIN);
 
 	while (!(SPI2->SR & SPI_SR_TXE))
 		; //transmit buffer empty?
 	LL_SPI_TransmitData8(SPI2, 0x02);
-//	while (!(SPI2->SR & SPI_SR_RXNE))
-//		; //data received?
-//	LL_SPI_ReceiveData8(SPI2);
 
 	while (!(SPI2->SR & SPI_SR_TXE))
 		; //transmit buffer empty?
 	LL_SPI_TransmitData8(SPI2, adress);
-//	while (!(SPI2->SR & SPI_SR_RXNE))
-//		; //data received?
-//	LL_SPI_ReceiveData8(SPI2);
 
 	while (!(SPI2->SR & SPI_SR_TXE))
 		; //transmit buffer empty?
 	LL_SPI_TransmitData8(SPI2, data);
-//	while (!(SPI2->SR & SPI_SR_RXNE))
-//		; //data received?
-//	LL_SPI_ReceiveData8(SPI2);
-	while (!(SPI2->SR & SPI_SR_TXE))
-		; //transmit buffer empty?
+
+	while ((SPI2->SR & SPI_SR_FTLVL)){}; //transmit fifo empty?
+	while (!(SPI2->SR & SPI_SR_BSY)){}; // no longer busy
+	while ((SPI2->SR & SPI_SR_FRLVL)){
+		uint8_t dummy = SPI2->DR; // clear rx fifo from the receives.
+	};
+
 	LL_GPIO_SetOutputPin(SPI2_CS_GPIO_PORT, SPI2_CS_PIN); // PA4 CS SET Active Low
 
 }
