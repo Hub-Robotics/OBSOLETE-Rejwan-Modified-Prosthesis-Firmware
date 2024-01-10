@@ -6,11 +6,16 @@
  */
 
 #include "main.h"
-#include "CAN.h"
+//#include "CAN.h"
 #include "sensor.h"
 #include "EPOS4.h"
 #include "controller.h"
 #include "knee_control.h"
+
+// Greg start
+#include "gpio_functions.h"
+#include "MadgwickAHRS.h"
+// Greg end
 
 extern int CAN_ID;
 
@@ -18,198 +23,142 @@ extern int CAN_ID;
 #define gear_ratio_Chain_knee 40
 #define peak_current 19 // Amp set in epos
 #define nominal_current 8 // Amp
-#define rad2deg 180/3.14
+#define rad2deg 180/3.1416
 #define kp 65//65   //40
 #define kd .68  //.68
 #define kI 0
 #define set_position 25
-
 #define coeff_x 0.0689
 #define coeff_y 0.8621
 
-
-
+// Greg start
+uint8_t count = 1;
 uint16_t Loadcell_top_m2;
-uint16_t Loadcell_top_m1 ;
+uint16_t Loadcell_top_m1;
+uint16_t Loadcell_bot_m2;
+uint16_t Loadcell_bot_m1;
+float Loadcell_top_filtered;
 float Loadcell_top_filtered_m2;
 float Loadcell_top_filtered_m1;
+float Loadcell_bot_filtered;
+float Loadcell_bot_filtered_m2;
+float Loadcell_bot_filtered_m1;
+float const dt_s = 1.0/512;
+
+float hip_angle = 0;
+float angle_now = 0;
+float angle_old = 0;
+float angular_velocity = 0;
+float old_angular_velocity = 0;
+float IMU_acc = 0;
+struct imu_data imu_data_now;
+float imu_angle_past = 0.0, imu_angle_now;
+// Greg end
+
 
 void processKnee() {
 	if (Data_log_Start_Resume == 1) // Sensor Start Flag from VCP command / FATFS SD card file
-			{
-
-//					angle_eq=30;
-
+	{
+		// Get knee angle in deg
 		angle_now = knee_angle();
-//					phase=1;
-		/* velocity calculation*/
-		angular_velocity = (float) (2 * (angle_now - angle_old)
-				+ (2 * tau - T) * old_angular_velocity) / (T + 2 * tau);
+
+		// Compute knee speed in deg/sec with low-frequency differentiator (fc = 10 Hz)
+		if (count == 1)
+		{
+			angular_velocity = 0.0;
+		}
+		else
+		{
+			angular_velocity = (float) 62.83*(angle_now - angle_old) + 0.8819*old_angular_velocity;
+		}
 		old_angular_velocity = (float) angular_velocity;
-		angle_old = (float) angle_now;
+		angle_old            = (float) angle_now;
 
-		Loadcell_front = Read_Loadcell1();
-		Loadcell_back = Read_Loadcell2();
+		// Filter load cell with 2nd order low-pass Butterworth (fc = 20 Hz)
+		uint16_t Loadcell_top = Read_Loadcell1();
+		uint16_t Loadcell_bot = Read_Loadcell2();
+		if (count == 1)
+		{
+			Loadcell_top_filtered    = Loadcell_top;
+			Loadcell_top_m2          = Loadcell_top;
+			Loadcell_top_filtered_m2 = Loadcell_top;
 
-		/*Filter*/
-		Loadcell_back_filtered = coeff_y * Loadcell_back_filtered_old
-				+ coeff_x * Loadcell_back + coeff_x * Loadcell_back_old;
-		Loadcell_back_filtered_old = Loadcell_back_filtered;
-		Loadcell_back_old = Loadcell_back;
+			Loadcell_bot_filtered    = Loadcell_bot;
+			Loadcell_bot_m2          = Loadcell_bot;
+			Loadcell_bot_filtered_m2 = Loadcell_bot;
 
-		// Greg start comment
-//					Loadcell_front_filtered=coeff_y*Loadcell_front_filtered_old+coeff_x*Loadcell_front+coeff_x*Loadcell_front_old;
-//					Loadcell_front_filtered_old=Loadcell_front_filtered;
-//					Loadcell_front_old=Loadcell_front;
-		// Greg start end comment
+			count++;
+		}
+		else if (count == 2)
+		{
+			Loadcell_top_filtered    = Loadcell_top;
+			Loadcell_top_m1          = Loadcell_top;
+			Loadcell_top_filtered_m1 = Loadcell_top;
 
-		// Greg start
-		uint16_t Loadcell_top = Loadcell_front;
-		float Loadcell_top_filtered = 1.6556 * Loadcell_top_filtered_m1
-				- 0.7068 * Loadcell_top_filtered_m2 + 0.0128 * Loadcell_top
-				+ 0.0256 * Loadcell_top_m1 + 0.0128 * Loadcell_top_m2;
-		Loadcell_top_m2 = Loadcell_top_m1;
-		Loadcell_top_m1 = Loadcell_top;
-		Loadcell_top_filtered_m2 = Loadcell_top_filtered_m1;
-		Loadcell_top_filtered_m1 = Loadcell_top_filtered;
-		// Greg end
+			Loadcell_bot_filtered    = Loadcell_bot;
+			Loadcell_bot_m1          = Loadcell_bot;
+			Loadcell_bot_filtered_m1 = Loadcell_bot;
 
+			count++;
+		}
+		else
+		{
+			Loadcell_top_filtered = 1.6556f * Loadcell_top_filtered_m1
+					- 0.7068 * Loadcell_top_filtered_m2 + 0.0128 * Loadcell_top
+					+ 0.0256 * Loadcell_top_m1 + 0.0128 * Loadcell_top_m2;
+			Loadcell_top_m2          = Loadcell_top_m1;
+			Loadcell_top_m1          = Loadcell_top;
+			Loadcell_top_filtered_m2 = Loadcell_top_filtered_m1;
+			Loadcell_top_filtered_m1 = Loadcell_top_filtered;
+
+			Loadcell_bot_filtered = 1.6556 * Loadcell_bot_filtered_m1
+					- 0.7068 * Loadcell_bot_filtered_m2 + 0.0128 * Loadcell_bot
+					+ 0.0256 * Loadcell_bot_m1 + 0.0128 * Loadcell_bot_m2;
+			Loadcell_bot_m2          = Loadcell_bot_m1;
+			Loadcell_bot_m1          = Loadcell_bot;
+			Loadcell_bot_filtered_m2 = Loadcell_bot_filtered_m1;
+			Loadcell_bot_filtered_m1 = Loadcell_bot_filtered;
+		}
+
+		// Get raw IMU data
 		imu_data_now = IMU1_read();
-		imu_angle_now = IMU_orientation(imu_data_now, imu_angle_past, 0.002);
-		imu_angle_past = imu_angle_now;
 
-		// Greg start comment
-//					IMU_acc=imu_data_now.AZ;
-		// Greg end comment
+		// Remove offsets from gyro
+		imu_data_now.GX -= -60;
+		imu_data_now.GY -= -29;
+		imu_data_now.GZ -= -16;
 
-		// Greg start
+		// Get accel data for heel strike if needed
 		IMU_acc = -imu_data_now.AY;
-		// Greg end
 
-		// Greg start comment
-		hip_angle = (imu_angle_now.x * rad2deg) - angle_now;
-		// Greg end comment
+		// Compute hip angle using
+		// 1) Madgwick filter (assumes X+ forward and Z+ upward)
+//		hip_angle = -MadgwickAHRSupdateIMU(imu_data_now.GX/32.8*(3.1416/180), -imu_data_now.GZ/32.8*(3.1416/180), imu_data_now.GY/32.8*(3.1416/180), imu_data_now.AX, -imu_data_now.AZ, imu_data_now.AY);
+//		hip_angle = hip_angle*rad2deg - angle_now;
+		// 2) Complementary filter
+		imu_angle_now  = IMU_orientation(imu_data_now, imu_angle_past, dt_s);
+		imu_angle_past = imu_angle_now;
+		hip_angle      = (imu_angle_now * rad2deg) - angle_now;
 
-		// Greg Starts
-		// Compute hip angle using Madgwick filter (input args are rotated 90 deg in X)
-//					hip_angle = -MadgwickAHRSupdateIMU(imu_data_now.GX/32.8*(3.1416/180),-imu_data_now.GZ/32.8*(3.1416/180),imu_data_now.GY/32.8*(3.1416/180),imu_data_now.AX,-imu_data_now.AZ,imu_data_now.AY);
-//					hip_angle = hip_angle*180/3.1416 - angle_now;
-		// Greg Ends
+		// Measure speed with oscope start
+		LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_11);
 
-		// Greg start comment out
-//						  	  if(angle_now>=-5 && angle_now<=70)
-//						  	  {	GREEN_LED_ONLY();
-//
-//
-//						  	  	  GREEN_LED();
-		// Greg end comment out
+		// Command motor
+		my_st_impedance = controller_impedance(angle_now, angular_velocity, Loadcell_bot_filtered, Loadcell_top_filtered, IMU_acc, hip_angle);
 
-		my_st_impedance = controller_impedance(angle_now, angular_velocity,
-				Loadcell_back_filtered, Loadcell_front_filtered, IMU_acc,
-				hip_angle);
-//    					  	  phase=2;//my_st_impedance.st;
+		// Measure speed with oscope end
+		LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_11);
 
-//							  	SetAngle=(float) 25+15*sin(i_deg*3.14/180/2);//(float) (25+10*sin((float) i*3.1416/180/2));
-//
-//									if(i_deg==360*2)
-//									{
-//										i_deg=0;
-//									}
-//									else
-//									{
-//										i_deg=i_deg+1;}
-//
-//
-//
-//								/*PID controller*/
-//								KneeError=SetAngle-angle_now;
-//
-//								//derivative part of the controller
-//								Con_d=(KneeError-KneeError_old)/512;
-//								KneeError_old=KneeError;
-//
-//
-//								integral=integral+KneeError;
-//
-//
-//								 /*Practical diff*/
-//
-//								CST_CMD_EPOS= -(kp*KneeError+kI*integral-kd*angular_velocity);//PID controller (Kp*KneeError+Ki*integral+Kd*Con_d);
-//
-//
-//						  		if (CST_CMD_EPOS>=max_CST_CMD_EPOS)
-//						  		{
-//						  			CST_CMD_EPOS=max_CST_CMD_EPOS;
-//						  		}
-//
-//						  		else if (CST_CMD_EPOS<-max_CST_CMD_EPOS)
-//						  		{
-//						  			CST_CMD_EPOS=-max_CST_CMD_EPOS;
-//						  		}
-//						  		else
-//						  			CST_CMD_EPOS=CST_CMD_EPOS;
-//						  		EPOS4_CST_apply_torque(CAN_ID,CST_CMD_EPOS); //100 means 10% +ve is extension -ve is flextion
-
-		// Greg start comment out
-//						  	  }
-//						  	  else
-//						  	  {GREEN_LED_OFF();
-//						  		RED_LED_ONLY();
-//						  		CST_CMD_EPOS=0;
-//						  		EPOS4_CST_apply_torque(CAN_ID,0); //100 means 10%
-//						  	  }
-		// Greg end comment out
-
-//			LL_GPIO_SetOutputPin(ENC1_CS_GPIO_PORT, LL_GPIO_PIN_10);
-
-		// Greg start comment out
-//			LL_GPIO_TogglePin(ENC1_CS_GPIO_PORT,ENC1_CS_PIN);
-		// Greg end comment out
-
+		// ???
 		F_Sensor_ADC_Store();
 		Mag_Enc2_Store();
-//			MPU_9D_store_IMU1_SPI1();
 
-//			Knee_data_storeIMU(Loadcell_front_filtered,Loadcell_back_filtered,IMU_acc,1,1,1);
-
-		// Greg Start Comment Out
-//			Knee_data_storeIMU(100*hip_angle,1,IMU_acc,1,1,1); //previous 1-6: hip_angle=1, IMU_acc=3
-		// Greg End Comment Out
-
-		// Greg Start
-		Knee_data_storeIMU(imu_data_now.AX, imu_data_now.AY, imu_data_now.AZ,
-				imu_data_now.GX, imu_data_now.GY, imu_data_now.GZ);
-		// Greg End
-
-//			Knee_data_storeIMU(1,1,1,1,1,1);
-
-//			Knee_data_store(100*angle_now,100*SetAngle,100*angular_velocity,my_st_impedance.CST_CMD_now,1,1,1,my_st_impedance.st);
-//			Knee_data_store1(100*my_st_impedance.desired_torque,Loadcell_front,Loadcell_back,IMU_acc);
-//			Knee_data_store(100*angle_now,angular_velocity,my_st_impedance.CST_CMD_now,my_st_impedance.st,1,1,1,1);
-
-		// Greg Start Comment Out
-//			Knee_data_store(100*angle_now,angular_velocity,my_st_impedance.CST_CMD_now,my_st_impedance.st);  //previous 7-10,
-		// Greg End Comment Out
-
-		// Greg Start
-		Knee_data_store(angle_now / 0.088, hip_angle, Loadcell_front,
-				Loadcell_back);
-		// Greg End
-
-		// Greg start comment out
-//			Knee_data_store1(100*my_st_impedance.desired_torque,Loadcell_front_filtered,Loadcell_back_filtered,IMU_acc);  //previous 11-14,
-		// Greg end comment out
-
-		// Greg start
-		Knee_data_store1(Loadcell_top_filtered, 12, 13, 14);
-		// Greg end
-
-//			Knee_data_store1(1,1,1,1);
-
-		//			Knee_data_store1(100*hip_angle,100*my_st_impedance.desired_torque,1,1); //imu_angle_now.x
-
-//			Knee_data_store1(100*hip_angle,100*my_st_impedance.desired_torque);
-//			Knee_data_store2(1,1);
+		// Store data
+		// Data can only be stored as integers, so some scaling is done to help resolution
+		Knee_data_storeIMU(imu_data_now.AX, imu_data_now.AY, imu_data_now.AZ, imu_data_now.GX, imu_data_now.GY, imu_data_now.GZ);
+		Knee_data_store(angle_now / 0.088, hip_angle * 100, Loadcell_top, Loadcell_top_filtered);
+		Knee_data_store1(Loadcell_bot, Loadcell_bot_filtered, my_st_impedance.desired_torque, angular_velocity * 100);
+//        Knee_data_store2(15,16);    <-- this is commented out in sensor.c
 
 		if (Sub_cnt == 5) {
 			//BSbuffer[s_flag].Blank1 = (uint8_t) (LL_GPIO_IsInputPinSet(GPIOA,LL_GPIO_PIN_10));
@@ -218,26 +167,27 @@ void processKnee() {
 
 		}
 
-// Switching Buffer code starts here
-		if (Sub_cnt == Highest_sensor_count) // Total samples to be stored in a 16KB buffer
-				{
-			Sub_cnt = 0;           // Reset Counter of sensor element
-			SD_write_Flag = 1;   // Flag set to write filled buffer content
+		// Switching Buffer
+		if (Sub_cnt == Highest_sensor_count)    // Total samples to be stored in a 16KB buffer
+		{
+			Sub_cnt = 0;          // Reset Counter of sensor element
+			SD_write_Flag = 1;    // Flag set to write filled buffer content
 			// Changing Buffer
-			if (s_flag == 0)       // if current storgae_buffer was 0
-					{
-				w_flag = 0;           // write_buffer to be saved in SD card = 0
-				s_flag = 1;            // current storgae_buffer is set 1
-			} else                    // if current storgae_buffer was 1
+			if (s_flag == 0)    // if current storgae_buffer was 0
 			{
-				w_flag = 1;           // write_buffer to be saved in SD card = 1
-				s_flag = 0;           // current storgae_buffer is set 0
+				w_flag = 0;    // write_buffer to be saved in SD card = 0
+				s_flag = 1;    // current storgae_buffer is set 1
 			}
-
-		} else {
-			Sub_cnt++;              // Increment Counter of sensor element
-		} /*Switching Buffer code Ends here */
-
-	}  // Data log at timer interrupt ends here
-
+			else               // if current storgae_buffer was 1
+			{
+				w_flag = 1;    // write_buffer to be saved in SD card = 1
+				s_flag = 0;    // current storgae_buffer is set 0
+			}
+		}
+		else
+		{
+			Sub_cnt++;    // Increment Counter of sensor element
+		}
+	}
 }
+

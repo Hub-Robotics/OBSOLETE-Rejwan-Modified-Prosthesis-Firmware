@@ -13,7 +13,6 @@ extern uint8_t USB_Mode, VCP_Bypass,Data_log_Start_Resume;
 int Logstart_Create,Logstart_Delete,EnterDFU_Create,EnterReset_Create;
 extern int16_t bit_data[9];
 extern uint16_t Test0,Test1,Test2,Test3,Test4,Test5;
-extern int Enc1,Enc2,Enc11,Enc22;
 extern int16_t Pos_Demo,Pos_Demo2;
 extern float accel_data[3];
 extern float temperature;

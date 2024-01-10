@@ -40,18 +40,6 @@ int CAN_ID = 0x601;
 #define kd .68  //.68
 #define kI 0
 #define set_position 25
-float i_deg=1,i_count=1;
-float degree_value=0;
-float hip_angle=0;
-float KneeError=0, SetAngle=0, Con_d=0,KneeError_old=0,integral=0;
-float diff_part=0, angular_velocity_d=0, old_angular_velocity_d=0;
-uint16_t volatile phase=0;
-uint16_t Loadcell_back=0,Loadcell_back_old=0,Loadcell_front=0,Loadcell_back_filtered_old=0,Loadcell_back_filtered=0;
-uint16_t Loadcell_front_filtered_old=0,Loadcell_front_filtered=0,Loadcell_front_old=0;
-//float Loadcell_back_filtered_old=0,Loadcell_back_filtered=0;
-float IMU_acc=0;
-struct imu_data imu_data_now;
-struct imu_angle imu_angle_past,imu_angle_now;
 
 #define AIM_Start_Data_Collection_on_Reset   // For Debug Purpose, AIM Datalog will start at power on reset
 int data111=0,data222=0;
@@ -90,29 +78,17 @@ volatile uint8_t s_flag = 0 ; 		// flag 1 for Buffer one, 2 for Buffer two
 volatile uint8_t w_flag = 1 ; 		// flag 1 for Buffer one, 2 for Buffer two
 volatile uint8_t SD_write_Flag; 	// SD Card write Flag
 volatile uint8_t SD_Write_Count=0;  // File Write Count
-
-int Enc1,Enc2,Enc11,Enc22;
-float angle_now=0,angle_eq=0;
-int torque_calc=0,CST_CMD_EPOS=0;
-
 /**/
 
 struct st_impedance my_st_impedance;
 
-float angle_old = 0;
-float angular_velocity=0;
-float old_angular_velocity=0;
 #define fc 10
-float tau= (float) 1/(2*3.14*10);//0.0159;
 float T= (float) 1/640; // interrupt duration
-float part_1, part_2, part_3,part_4;
-unsigned int Sg;
 extern volatile uint16_t Test1,Test2,Test1_mV,Test2_mV,Test3,Test4,Test3_mV,Test4_mV,Test5,Test6,Test5_mV,Test6_mV;
 extern int16_t bit_data[10],bit_data1[10],bit_data2[10],bit_data3[10];
 uint8_t PrintBuf[50],PrintBuf1[50];
 
 // Greg start
-
 uint8_t isProcessKneeRequired = 0;
 // Greg end
 
@@ -146,13 +122,13 @@ int main(void) {
 	P_ADC_Sensor_GPIO_Init(); //ADC GPIOs //here we initialized the chip select pins as well
 
 	/*CAN Bus SPI Initialization*/
-	MCP_SPI2_Initialization_at_reset();
+//	MCP_SPI2_Initialization_at_reset();
 
-	//Configures Bit timing currently set to 125kbits/s
+	//Configure the mcp25625, CAN bus and SPI2
 	CAN_configure();
 
 	//Sets can mode currently set to normal mode
-	CAN_mode();
+	//CAN_mode();
 
 	//Transmits a message over can
 //clear state
@@ -168,20 +144,8 @@ int main(void) {
 //EPOS4_enable2(CAN_ID);
 
 	/* remove spikes from the beginning part*/
-	int jj;
-	for (jj = 1; jj < 1000; ++jj) {
-		angle_now = knee_angle();
-//					phase=1;
-		/* velocity calculation*/
-		angular_velocity = (float) (2 * (angle_now - angle_old)
-				+ (2 * tau - T) * old_angular_velocity) / (T + 2 * tau);
-		old_angular_velocity = (float) angular_velocity;
-		angle_old = (float) angle_now;
+	for (int jj = 1; jj < 1000; ++jj);
 
-	}
-
-	imu_angle_past.x = 0;
-	imu_angle_past.y = 0;
 
 	USB_PA9_EXTI_conf(); // USB connectivity pin detect Interrupt // Data_Pause_Resume_PC0_EXTI_conf();
 
@@ -336,75 +300,24 @@ int main(void) {
 
 		}
 	}
-
 }
+
 
 void LPTIM2_IRQHandler(void)   // Response of 10ms LPTIM interrupt
 {
-
-	// Greg start
-	// Measure interrupt speed start
-	LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_11);
-	// Greg end
-
-	if(LL_LPTIM_IsActiveFlag_ARRM(LPTIM2) == 1)	// auto reload match interrupt has occured
+	if(LL_LPTIM_IsActiveFlag_ARRM(LPTIM2) == 1)    // auto reload match interrupt has occured
 	{
 		isProcessKneeRequired = 1;
-		LL_LPTIM_ClearFLAG_ARRM(LPTIM2); // Clear ARR interrupt flag
+		LL_LPTIM_ClearFLAG_ARRM(LPTIM2);    // Clear ARR interrupt flag
 	}
-
-	// Greg start
-	// Measure interrupt speed end
-	LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_11);
-	// Greg end
-
 }
 
-void EXTI9_5_IRQHandler(void)       // Interrupt from USB connectivity PIN PA9
+
+void EXTI9_5_IRQHandler(void)    // Interrupt from USB connectivity PIN PA9
 {
-if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_9) != RESET)
-{
-USB_Present_=1;         // USB present
-LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_9);   // Clear interrupt
+	if(LL_EXTI_IsActiveFlag_0_31(LL_EXTI_LINE_9) != RESET)
+	{
+		USB_Present_=1;                            // USB present
+		LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_9);    // Clear interrupt
+	}
 }
-}
-
-
-//int PID_position_controller(float set_position,float kp, float ki, float kd)
-//{
-//
-////	angle = GetKneeAngle();
-//
-//	angle_now=knee_angle();
-//
-//
-//	/* velocity calculation*/
-//
-//	angular_velocity = (float) ((float) 2*(angle_now - angle_old)+(float) (2*tau-T)*old_angular_velocity) /(float) (T+2*tau);
-//	old_angular_velocity = (float) angular_velocity;
-//	angle_old = (float) angle_now;
-//
-//
-//
-//
-//
-//
-//	        KneeError=SetAngle-angle_now;
-//
-//	        //derivative part of the controller
-//	        Con_d=(KneeError-KneeError_old)*500;
-//	        KneeError_old=KneeError;
-//
-//	        integral=integral+KneeError*0.002;
-//
-//	        //anti-windup
-//	        if(fabs(Ki*integral)>integral_max){
-//	            integral=integral*integral_max/fabs(integral);
-//	        }
-//
-//	        PWMPercent=(Kp*KneeError+Ki*integral+Kd*Con_d);//PID controller
-//
-//}
-
-
-/************************ (C) COPYRIGHT CLAWS UA ***************/

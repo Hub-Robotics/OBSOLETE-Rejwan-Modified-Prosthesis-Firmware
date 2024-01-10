@@ -1,3 +1,0 @@
-CAN.c:17:6:CAN_configure	8	static
-CAN.c:29:6:CAN_mode	0	static
-CAN.c:37:6:CAN_transmit	16	static

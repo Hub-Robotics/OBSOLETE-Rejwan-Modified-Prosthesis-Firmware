@@ -211,11 +211,11 @@ void IMU_Initialization_at_reset(void);
 void P_IMU1_SPI1_Initialization_at_reset(void);
 void P_IMU3_SPI2_Initialization_at_reset(void);
 
-void MCP_SPI2_Initialization_at_reset(void);
-void MCP_setup(void);
-void MCP_reset();
-int MCP_read(int adress);
-void MCP_write(int adress, int data);
+//void MCP_SPI2_Initialization_at_reset(void);
+//void MCP_setup(void);
+//void MCP_reset();
+//int MCP_read(int adress);
+//void MCP_write(int adress, int data);
 
 
 void P_IMU4_SPI3_Initialization_at_reset(void);
@@ -271,5 +271,5 @@ struct imu_angle
 };
 
 
-struct imu_angle IMU_orientation( struct imu_data imuMyData, struct imu_angle last_angle, float dt_s);
+float IMU_orientation( struct imu_data imuMyData, float last_angle, float dt_s);
 struct imu_data IMU1_read(void);
