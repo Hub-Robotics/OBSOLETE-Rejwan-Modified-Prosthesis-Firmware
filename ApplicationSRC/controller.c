@@ -39,16 +39,6 @@
 #define IMU_sensor_Heel_Strike 7000 //previous 4200 1g
 #define Loadcell_Heel_Strike 3810//1920 // heel pressure Test2_mV reading
 
-
-/*State Equilibrium Setup*/
-// Greg start comment
-//#define ES_equilibrium 5   // position in degree
-//#define PSW_equilibrium 20   //-6 position in degree
-//#define SWF_equilibrium 45     // earlier  position in degree
-//#define SWE_equilibrium 5      // earlier  position in degree
-//#define IDLE_equilibrium 3     // position in degree
-// Greg end comment
-
 // Greg start
 #define ES_equilibrium -5   // position in degree
 #define PSW_equilibrium -20   //-6 position in degree
@@ -77,14 +67,6 @@
 /*State 4:  IDLE/Late swing Parameter*/
 #define IDLE_stiffness .5//.5
 #define IDLE_damping 0//0.01
-
-// Greg start
-enum states{
-    STANCE,
-	SWING
-};
-enum states state = STANCE;//ST_EARLY_STANCE;
-// Greg end
 
 // Greg start comment
 //enum states{
@@ -119,14 +101,20 @@ bool flag_begin_SW = false, flag_begin_ES = true;
 struct st_impedance my_st_impedance;
 
 // Greg start
-#define ST_damping      0.00     // Keep 0 for now
-#define SW_damping      0.00     // Keep 0 for now
+enum states{
+    STANCE,
+	SWING
+};
+enum states state = STANCE;
 
-#define ST_stiffness    2.50     // Tune me! (Vanderbilt = 4.97)
-#define SW_stiffness    0.65     // Tune me! (Vanderbilt = 0.65)
+#define ST_damping      0.00     // (Vanderbilt = 0 (N/m) / (deg/s))
+#define SW_damping      0.00     // (Vanderbilt = 0 (N/m) / (deg/s))
 
-#define ST_equilibrium -4.99     // Tune me! (Vanderbilt = -4.99)
-#define SW_equilibrium -35.0     // Tune me! (Vanderbilt = -35.0)
+#define ST_stiffness    2.50     // (Vanderbilt = 4.97 (N/m) / deg)
+#define SW_stiffness    0.65     // (Vanderbilt = 0.65 (N/m) / deg)
+
+#define ST_equilibrium -4.99     // (Vanderbilt = -4.99 deg)
+#define SW_equilibrium -35.0     // (Vanderbilt = -35.0 deg)
 // Greg end
 
 //struct st_impedance controller_impedance(float angle, float knee_velocity,int ac_x, float current)

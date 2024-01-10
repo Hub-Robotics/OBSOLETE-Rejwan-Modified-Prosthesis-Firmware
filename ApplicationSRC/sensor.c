@@ -8,6 +8,11 @@
 #include "peripherals.h"
 #include <inttypes.h>
 
+// Greg start
+static uint8_t count = 1;
+static float last_gyro;
+// Greg end
+
 //new
 uint8_t FATAL_Error, ACC_Reset_Ongoing, Skip_FATFS, File_Sensor_write_issue,
 		File_Sensor_close_issue;
@@ -1641,63 +1646,61 @@ unsigned int WriteReg1_imu2(uint8_t adress, uint8_t data) {
 	return temp_val;
 }
 
-//void MCP_write(uint8_t adress, uint8_t data)
-void MCP_write(int adress, int data) {
-
-	// Activate chip select
-	LL_GPIO_ResetOutputPin(SPI2_CS_GPIO_PORT, SPI2_CS_PIN);
-
-	while (!(SPI2->SR & SPI_SR_TXE))
-		; //transmit buffer empty?
-	LL_SPI_TransmitData8(SPI2, 0x02);
-
-	while (!(SPI2->SR & SPI_SR_TXE))
-		; //transmit buffer empty?
-	LL_SPI_TransmitData8(SPI2, adress);
-
-	while (!(SPI2->SR & SPI_SR_TXE))
-		; //transmit buffer empty?
-	LL_SPI_TransmitData8(SPI2, data);
-
-	while ((SPI2->SR & SPI_SR_FTLVL)){}; //transmit fifo empty?
-	while (!(SPI2->SR & SPI_SR_BSY)){}; // no longer busy
-	while ((SPI2->SR & SPI_SR_FRLVL)){
-		uint8_t dummy = SPI2->DR; // clear rx fifo from the receives.
-	};
-
-	LL_GPIO_SetOutputPin(SPI2_CS_GPIO_PORT, SPI2_CS_PIN); // PA4 CS SET Active Low
-
-}
-
-//unsigned int MCP_read(uint8_t adress)
-int MCP_read(int adress) {
-	unsigned int temp_val;
-	LL_GPIO_ResetOutputPin(SPI2_CS_GPIO_PORT, SPI2_CS_PIN);
-
-	while (!(SPI2->SR & SPI_SR_TXE))
-		; //transmit buffer empty?
-	LL_SPI_TransmitData8(SPI2, 0x03);
-	while (!(SPI2->SR & SPI_SR_RXNE))
-		; //data received?
-	LL_SPI_ReceiveData8(SPI2);
-
-	while (!(SPI2->SR & SPI_SR_TXE))
-		; //transmit buffer empty?
-	LL_SPI_TransmitData8(SPI2, adress);
-	while (!(SPI2->SR & SPI_SR_RXNE))
-		; //data received?
-	LL_SPI_ReceiveData8(SPI2);
-
-	while (!(SPI2->SR & SPI_SR_TXE))
-		; //transmit buffer empty?
-	LL_SPI_TransmitData8(SPI2, 0x00);
-	while (!(SPI2->SR & SPI_SR_RXNE))
-		; //data received?
-	temp_val = LL_SPI_ReceiveData8(SPI2);
-
-	LL_GPIO_SetOutputPin(SPI2_CS_GPIO_PORT, SPI2_CS_PIN); // PA4 CS SET Active Low
-	return temp_val;
-}
+////void MCP_write(uint8_t adress, uint8_t data)
+//void MCP_write(int adress, int data) {
+//
+//	// Activate chip select
+//	LL_GPIO_ResetOutputPin(SPI2_CS_GPIO_PORT, SPI2_CS_PIN);
+//
+//	while (!(SPI2->SR & SPI_SR_TXE)); //transmit buffer empty?
+//	LL_SPI_TransmitData8(SPI2, 0x02);
+//
+//	while (!(SPI2->SR & SPI_SR_TXE)); //transmit buffer empty?
+//	LL_SPI_TransmitData8(SPI2, adress);
+//
+//	while (!(SPI2->SR & SPI_SR_TXE)); //transmit buffer empty?
+//	LL_SPI_TransmitData8(SPI2, data);
+//
+//	while ((SPI2->SR & SPI_SR_FTLVL)){}; //transmit fifo empty?
+//	while (!(SPI2->SR & SPI_SR_BSY)){}; // no longer busy
+//	while ((SPI2->SR & SPI_SR_FRLVL))
+//	{
+//		uint8_t dummy = SPI2->DR; // clear rx fifo from the receives.
+//	};
+//
+//	LL_GPIO_SetOutputPin(SPI2_CS_GPIO_PORT, SPI2_CS_PIN); // PA4 CS SET Active Low
+//
+//}
+//
+////unsigned int MCP_read(uint8_t adress)
+//int MCP_read(int adress) {
+//	unsigned int temp_val;
+//	LL_GPIO_ResetOutputPin(SPI2_CS_GPIO_PORT, SPI2_CS_PIN);
+//
+//	while (!(SPI2->SR & SPI_SR_TXE))
+//		; //transmit buffer empty?
+//	LL_SPI_TransmitData8(SPI2, 0x03);
+//	while (!(SPI2->SR & SPI_SR_RXNE))
+//		; //data received?
+//	LL_SPI_ReceiveData8(SPI2);
+//
+//	while (!(SPI2->SR & SPI_SR_TXE))
+//		; //transmit buffer empty?
+//	LL_SPI_TransmitData8(SPI2, adress);
+//	while (!(SPI2->SR & SPI_SR_RXNE))
+//		; //data received?
+//	LL_SPI_ReceiveData8(SPI2);
+//
+//	while (!(SPI2->SR & SPI_SR_TXE))
+//		; //transmit buffer empty?
+//	LL_SPI_TransmitData8(SPI2, 0x00);
+//	while (!(SPI2->SR & SPI_SR_RXNE))
+//		; //data received?
+//	temp_val = LL_SPI_ReceiveData8(SPI2);
+//
+//	LL_GPIO_SetOutputPin(SPI2_CS_GPIO_PORT, SPI2_CS_PIN); // PA4 CS SET Active Low
+//	return temp_val;
+//}
 
 unsigned int WriteReg2(uint8_t adress, uint8_t data) {
 	unsigned int temp_val;
@@ -2423,63 +2426,63 @@ void P_IMU1_SPI1_Init(void)  //MPU9250
 
 }
 
-void MCP_setup(void) {
-	LL_SPI_InitTypeDef SPI_InitStruct;
-
-	LL_GPIO_InitTypeDef GPIO_InitStruct;
-
-	/* Peripheral clock enable */
-	LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOC);
-	LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOB);
-	LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_SPI2);
-
-	GPIO_InitStruct.Pin = SPI2_SCK_IMU_PIN;
-	GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
-	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-	GPIO_InitStruct.Alternate = LL_GPIO_AF_5;
-	LL_GPIO_Init(SPI2_SCK_IMU_GPIO_PORT, &GPIO_InitStruct);
-
-	GPIO_InitStruct.Pin = SPI2_MISO_IMU_PIN;
-	GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
-	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-	GPIO_InitStruct.Alternate = LL_GPIO_AF_5;
-	LL_GPIO_Init(SPI2_MISO_IMU_GPIO_PORT, &GPIO_InitStruct);
-
-	GPIO_InitStruct.Pin = SPI2_MOSI_IMU_PIN;
-	GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
-	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-	GPIO_InitStruct.Alternate = LL_GPIO_AF_5;
-	LL_GPIO_Init(SPI2_MOSI_IMU_GPIO_PORT, &GPIO_InitStruct);
-
-	SPI_InitStruct.TransferDirection = LL_SPI_FULL_DUPLEX;
-	SPI_InitStruct.Mode = LL_SPI_MODE_MASTER;
-	SPI_InitStruct.DataWidth = LL_SPI_DATAWIDTH_8BIT;
-	/*Mode 3 (Mode 1,1) */
-	SPI_InitStruct.ClockPolarity = LL_SPI_POLARITY_HIGH; /*Clock 1 when idle and 0 when active */
-	SPI_InitStruct.ClockPhase = LL_SPI_PHASE_2EDGE; //Second clock transition is the first data capture edge
-	SPI_InitStruct.NSS = LL_SPI_NSS_SOFT;
-
-	SPI_InitStruct.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV4;
-	SPI_InitStruct.BitOrder = LL_SPI_MSB_FIRST;
-	SPI_InitStruct.CRCCalculation = LL_SPI_CRCCALCULATION_DISABLE;
-	SPI_InitStruct.CRCPoly = 7; //?
-	LL_SPI_Init(SPI2, &SPI_InitStruct);
-
-	LL_SPI_DisableNSSPulseMgt(SPI2);
-
-	LL_SPI_SetRxFIFOThreshold(SPI2, LL_SPI_RX_FIFO_TH_QUARTER);
-	LL_SPI_DisableIT_RXNE(SPI2);
-	LL_SPI_Enable(SPI2);
-
-	delay_us(10000);
-
-}
+//void MCP_setup(void) {
+//	LL_SPI_InitTypeDef SPI_InitStruct;
+//
+//	LL_GPIO_InitTypeDef GPIO_InitStruct;
+//
+//	/* Peripheral clock enable */
+//	LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOC);
+//	LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOB);
+//	LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_SPI2);
+//
+//	GPIO_InitStruct.Pin = SPI2_SCK_IMU_PIN;
+//	GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
+//	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
+//	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+//	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+//	GPIO_InitStruct.Alternate = LL_GPIO_AF_5;
+//	LL_GPIO_Init(SPI2_SCK_IMU_GPIO_PORT, &GPIO_InitStruct);
+//
+//	GPIO_InitStruct.Pin = SPI2_MISO_IMU_PIN;
+//	GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
+//	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
+//	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+//	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+//	GPIO_InitStruct.Alternate = LL_GPIO_AF_5;
+//	LL_GPIO_Init(SPI2_MISO_IMU_GPIO_PORT, &GPIO_InitStruct);
+//
+//	GPIO_InitStruct.Pin = SPI2_MOSI_IMU_PIN;
+//	GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
+//	GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
+//	GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+//	GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+//	GPIO_InitStruct.Alternate = LL_GPIO_AF_5;
+//	LL_GPIO_Init(SPI2_MOSI_IMU_GPIO_PORT, &GPIO_InitStruct);
+//
+//	SPI_InitStruct.TransferDirection = LL_SPI_FULL_DUPLEX;
+//	SPI_InitStruct.Mode = LL_SPI_MODE_MASTER;
+//	SPI_InitStruct.DataWidth = LL_SPI_DATAWIDTH_8BIT;
+//	/*Mode 3 (Mode 1,1) */
+//	SPI_InitStruct.ClockPolarity = LL_SPI_POLARITY_HIGH; /*Clock 1 when idle and 0 when active */
+//	SPI_InitStruct.ClockPhase = LL_SPI_PHASE_2EDGE; //Second clock transition is the first data capture edge
+//	SPI_InitStruct.NSS = LL_SPI_NSS_SOFT;
+//
+//	SPI_InitStruct.BaudRate = LL_SPI_BAUDRATEPRESCALER_DIV4;
+//	SPI_InitStruct.BitOrder = LL_SPI_MSB_FIRST;
+//	SPI_InitStruct.CRCCalculation = LL_SPI_CRCCALCULATION_DISABLE;
+//	SPI_InitStruct.CRCPoly = 7; //?
+//	LL_SPI_Init(SPI2, &SPI_InitStruct);
+//
+//	LL_SPI_DisableNSSPulseMgt(SPI2);
+//
+//	LL_SPI_SetRxFIFOThreshold(SPI2, LL_SPI_RX_FIFO_TH_QUARTER);
+//	LL_SPI_DisableIT_RXNE(SPI2);
+//	LL_SPI_Enable(SPI2);
+//
+//	delay_us(10000);
+//
+//}
 
 /* SPI2 init function */
 void P_IMU3_SPI2_Init(void) {
@@ -4152,52 +4155,43 @@ float knee_angle(void) {
 	return knee_position;
 }
 
-struct imu_angle IMU_orientation(struct imu_data imuMyData,
-		struct imu_angle last_angle, float dt_s) {
-	struct imu_angle imu_angle1, gyro, accel, accel_angle, gyro_angle;
-
-	float RADIANS_TO_DEGREES = 180 / 3.14159;
+float IMU_orientation(struct imu_data imuMyData, float last_angle, float dt_s)
+{
+	struct imu_angle gyro, accel, accel_angle, gyro_angle;
 	float DEGREES_TO_RADIANS = 3.14159 / 180;
-	float alpha = 0.1; //0.1; // t/(t+dt) dt is 0.014 ms t is 1 sec alpha = 0.986
 
-	accel.x = (float) imuMyData.AX / 4096; //g
+	// User defined constant for complementary filter
+	float alpha = 0.002;
+
+	// Convert IMU to gs and rad/sec
+	accel.x = (float) imuMyData.AX / 4096;
 	accel.y = (float) imuMyData.AY / 4096;
 	accel.z = (float) imuMyData.AZ / 4096;
-	gyro.x = (float) imuMyData.GX / 16.375 * DEGREES_TO_RADIANS; //deg/sec
-	gyro.y = (float) imuMyData.GY / 16.375 * DEGREES_TO_RADIANS;
-	gyro.z = (float) imuMyData.GZ / 16.375 * DEGREES_TO_RADIANS;
+	gyro.x  = (float) imuMyData.GX / 32.8 * DEGREES_TO_RADIANS;
+	gyro.y  = (float) imuMyData.GY / 32.8 * DEGREES_TO_RADIANS;
+	gyro.z  = (float) imuMyData.GZ / 32.8 * DEGREES_TO_RADIANS;
 
-	// Get angle values from accelerometer
+	// Compute angle from accel
+	accel_angle.z   = atan(accel.x / sqrt(pow(accel.y,2) + pow(accel.z,2)));
 
-	// Greg start comment
-//    accel_angle.x = (float) atan(accel.y/sqrt(pow(accel.x,2) + pow(accel.z,2)));
-//    accel_angle.y = (float) atan(-1*accel.x/sqrt(pow(accel.y,2) + pow(accel.z,2)));
-//    accel_angle.z = 0;
-//
-//
-//    gyro_angle.x  = (float) last_angle.x + dt_s * (gyro.x + sin(last_angle.x) * tan(last_angle.y) * gyro.y+ cos(last_angle.x) * tan(last_angle.y) * gyro.z);
-//    gyro_angle.y = (float) last_angle.y + dt_s * (cos(last_angle.x) * gyro.y - sin(last_angle.x) * gyro.z);
-	// Greg end comment
+	// Compute change in angle from gyro (trapezoidal used)
+	if (count == 1)
+	{
+		gyro_angle.z = 0;
+		count++;
+	}
+	else
+	{
+		gyro_angle.z = dt_s/2 * (gyro.z + last_gyro);
+	}
 
-	// Greg start
-	accel_angle.x = (float) atan(
-			accel.x / sqrt(pow(-accel.z, 2) + pow(-accel.y, 2)));
-	accel_angle.y = (float) atan(
-			accel.z / sqrt(pow(accel.x, 2) + pow(-accel.y, 2)));
-	accel_angle.z = 0;
+	// Save gyro for next iteration
+	last_gyro = gyro.z;
 
-	gyro_angle.x = (float) last_angle.x
-			+ dt_s
-					* (-gyro.z + sin(last_angle.x) * tan(last_angle.y) * gyro.x
-							+ cos(last_angle.x) * tan(last_angle.y) * -gyro.y);
-	gyro_angle.y = (float) last_angle.y
-			+ dt_s * (cos(last_angle.x) * gyro.x - sin(last_angle.x) * -gyro.y);
-	// Greg end
+	// Compute angle using complementary filter
+	float imu_angle = accel_angle.z*alpha + (1-alpha) * (gyro_angle.z + last_angle);
 
-	imu_angle1.x = (float) ((1 - alpha) * gyro_angle.x + alpha * accel_angle.x);
-	imu_angle1.y = (float) ((1 - alpha) * gyro_angle.y + alpha * accel_angle.y);
-
-	imu_angle1.x = imu_angle1.x;
-	return (imu_angle1);
+	// Return angle
+	return (imu_angle);
 }
 
