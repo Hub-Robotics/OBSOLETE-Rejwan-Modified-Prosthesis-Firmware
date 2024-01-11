@@ -31,11 +31,11 @@ typedef uint8_t txb_sidh_t; // full byte is addr 10:3. Just for clarity
 typedef union {
 	uint8_t value;
 	struct {
-		uint8_t SID :3;	// low 3 bits of standard id bits
-		uint8_t unused :1;
-		uint8_t EXIDE :1; // extended id enable
-		uint8_t unused1 :1;
 		uint8_t EID :2;	// extended id 17:16
+		uint8_t unused1 :1;
+		uint8_t EXIDE :1; // extended id enable
+		uint8_t unused :1;
+		uint8_t SID :3;	// low 3 bits of standard id bits
 	} bits;
 } txb_sidl_t;
 
