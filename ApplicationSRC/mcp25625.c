@@ -40,7 +40,7 @@ void mcp25625_reset() {
 	};
 
 	// reset requires a delay of 128 OSC1 clock cycles. That equals 12.8us.
-	delay_us(25);
+	delay_us(50);
 }
 /*
  * Writing a register does not need to respect the CANINTF register
@@ -93,11 +93,10 @@ uint8_t mcp25625_readRegister(uint8_t reg) {
 	return result;
 }
 
-void mcp25625_writeMultiple(uint8_t reg, uint8_t length, uint8_t * data) {
+void mcp25625_loadTXB(uint8_t reg, uint8_t length, uint8_t * data) {
 
 	setChipSelect();
 
-	LL_SPI_TransmitData8(SPI2, CMD_WRITE);
 	LL_SPI_TransmitData8(SPI2, reg);
 	for ( uint8_t i = 0; i < length; i++) {
 		while (!(SPI2->SR & SPI_SR_TXE)) {};
@@ -164,21 +163,21 @@ __STATIC_INLINE rxb_ctrl_t getRXB0CTRL() {
  *
  */
 __STATIC_INLINE void loadTXB2(uint8_t * data) {
-	mcp25625_writeMultiple((CMD_LOAD_TX_BUFFER_BASE | TXB2_SIDH), 13, data);
+	mcp25625_loadTXB((CMD_LOAD_TX_BUFFER_BASE | TXB2_SIDH), 13, data);
 }
 
 /* Abstraction for loading TXB1
  *
  */
 __STATIC_INLINE void loadTXB1(uint8_t * data) {
-	mcp25625_writeMultiple((CMD_LOAD_TX_BUFFER_BASE | TXB1_SIDH), 13, data);
+	mcp25625_loadTXB((CMD_LOAD_TX_BUFFER_BASE | TXB1_SIDH), 13, data);
 }
 
 /* Abstraction for loading TXB2
  *
  */
 __STATIC_INLINE void loadTXB0(uint8_t * data) {
-	mcp25625_writeMultiple((CMD_LOAD_TX_BUFFER_BASE | TXB0_SIDH), 13, data);
+	mcp25625_loadTXB((CMD_LOAD_TX_BUFFER_BASE | TXB0_SIDH), 13, data);
 }
 
 /*
@@ -257,7 +256,7 @@ void CAN_transmit(uint16_t CAN_ID, uint8_t length, uint8_t * message) {
 	memset(&t, 0, sizeof(t));
 
 	t.txb.SIDH = CAN_ID >> 3;
-	t.txb.SIDL.bits.SID = CAN_ID & 0x07;
+	t.txb.SIDL.value = (CAN_ID & 0x07) << 5;
 	t.txb.DLC.value = length;
 	for (uint8_t i = 0; i < length; i++) {
 		t.txb.data[i] = message[i];

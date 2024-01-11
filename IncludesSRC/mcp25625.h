@@ -254,8 +254,8 @@ typedef struct {
 #define RX1_SIDH					0x02	/* rxb 1, start at sidh */
 #define RX1_D0						0x03	/* rxb 1, start at d0 */
 
-#define	TXB2_SIDH					0x03	/* txb 0, start at sidh */
-#define TXB2_D0						0x04	/* txb 0, start at d0 */
+#define	TXB2_SIDH					0x04	/* txb 0, start at sidh */
+#define TXB2_D0						0x05	/* txb 0, start at d0 */
 #define	TXB1_SIDH					0x02	/* txb 0, start at sidh */
 #define TXB1_D0						0x03	/* txb 0, start at d0 */
 #define	TXB0_SIDH					0x00	/* txb 0, start at sidh */
