@@ -3990,7 +3990,7 @@ void CAN_transmit(uint16_t CAN_ID, uint8_t length, uint8_t * message) {
  800204a:	f88d 3000 	strb.w	r3, [sp]
 	t.txb.SIDL.bits.SID = CAN_ID & 0x07;
  800204e:	f04f 0300 	mov.w	r3, #0
- 8002052:	f365 0302 	bfi	r3, r5, #0, #3
+ 8002052:	f365 1347 	bfi	r3, r5, #5, #3
  8002056:	f88d 3001 	strb.w	r3, [sp, #1]
 	t.txb.DLC.value = length;
  800205a:	f88d 4004 	strb.w	r4, [sp, #4]
