@@ -11,6 +11,7 @@
 #include "string.h"
 #include "stdbool.h"
 #include "spi2.h"
+#include "time_functions.h"
 
 static mcp25625_t can_tranceiver;
 

@@ -1428,36 +1428,37 @@ void P_IMU4_SPI3_Init(void) // work for imu5
 
 }
 
-void P_IMU1_SPI1_Initialization_at_reset(void)       // IMU configurations
-{
-	P_IMU1_SPI1_Init();         // Accelerometer Chip Initialization
-	delay_us(7000);         // Arbitrary delay after SPI initialization
-
-	MPU1_SPI1_init();
-	MPU2_SPI1_init();
-
-}
-void MCP_SPI2_Initialization_at_reset(void) {
-	LL_GPIO_SetOutputPin(SPI2_CS_GPIO_PORT, SPI2_CS_PIN); // PA4 CS SET Active Low
-
-	MCP_setup();
-//	delay_us(7000);
-	MCP_reset();
-	delay_us(70000);
-}
-
-void MCP_reset() {
-	LL_GPIO_ResetOutputPin(SPI2_CS_GPIO_PORT, SPI2_CS_PIN);
-
-	while (!(SPI2->SR & SPI_SR_TXE))
-		; //transmit buffer empty?
-	LL_SPI_TransmitData8(SPI2, 0xC0);
-	while (!(SPI2->SR & SPI_SR_RXNE))
-		; //data received?
-	LL_SPI_ReceiveData8(SPI2);
-	LL_GPIO_SetOutputPin(SPI2_CS_GPIO_PORT, SPI2_CS_PIN); // PA4 CS SET Active Low
-
-}
+//void P_IMU1_SPI1_Initialization_at_reset(void)       // IMU configurations
+//{
+//	spi1_init();
+//	//P_IMU1_SPI1_Init();         // Accelerometer Chip Initialization
+//	delay_us(7000);         // Arbitrary delay after SPI initialization
+//
+//	MPU1_SPI1_init();
+//	MPU2_SPI1_init();
+//
+//}
+//void MCP_SPI2_Initialization_at_reset(void) {
+//	LL_GPIO_SetOutputPin(SPI2_CS_GPIO_PORT, SPI2_CS_PIN); // PA4 CS SET Active Low
+//
+//	MCP_setup();
+////	delay_us(7000);
+//	MCP_reset();
+//	delay_us(70000);
+//}
+//
+//void MCP_reset() {
+//	LL_GPIO_ResetOutputPin(SPI2_CS_GPIO_PORT, SPI2_CS_PIN);
+//
+//	while (!(SPI2->SR & SPI_SR_TXE))
+//		; //transmit buffer empty?
+//	LL_SPI_TransmitData8(SPI2, 0xC0);
+//	while (!(SPI2->SR & SPI_SR_RXNE))
+//		; //data received?
+//	LL_SPI_ReceiveData8(SPI2);
+//	LL_GPIO_SetOutputPin(SPI2_CS_GPIO_PORT, SPI2_CS_PIN); // PA4 CS SET Active Low
+//
+//}
 
 void P_IMU3_SPI2_Initialization_at_reset(void)       // IMU configurations
 {
@@ -1794,27 +1795,27 @@ void ReadRegs(uint8_t ReadAddr, uint8_t *ReadBuf, unsigned int Bytes) {
 
 }
 
-void MPU_SPI_GetData1(uint8_t adress) {
-
-	LL_GPIO_ResetOutputPin(SPI1_CS_GPIO_PORT, SPI1_CS_PIN); // PA4 CS RESET Active Low
-
-	while (!(SPI1->SR & SPI_SR_TXE))
-		; //transmit buffer empty?
-	LL_SPI_TransmitData8(SPI1, (adress | 0x80)); // (Address 0x22 | 0x80); MSB is '1' for 0x80, next 7 bit Address of register to write 0x22
-	while (!(SPI1->SR & SPI_SR_RXNE))
-		; //data received?
-	LL_SPI_ReceiveData8(SPI1);
-
-	while (!(SPI1->SR & SPI_SR_TXE))
-		; //transmit buffer empty?
-	LL_SPI_TransmitData8(SPI1, 0x00);
-	while (!(SPI1->SR & SPI_SR_RXNE))
-		; //data received?
-	LL_SPI_ReceiveData8(SPI1);
-
-	LL_GPIO_SetOutputPin(SPI1_CS_GPIO_PORT, SPI1_CS_PIN); // PC4 CS SET Active Low
-
-}
+//void MPU_SPI_GetData1(uint8_t adress) {
+//
+//	LL_GPIO_ResetOutputPin(SPI1_CS_GPIO_PORT, SPI1_CS_PIN); // PA4 CS RESET Active Low
+//
+//	while (!(SPI1->SR & SPI_SR_TXE))
+//		; //transmit buffer empty?
+//	LL_SPI_TransmitData8(SPI1, (adress | 0x80)); // (Address 0x22 | 0x80); MSB is '1' for 0x80, next 7 bit Address of register to write 0x22
+//	while (!(SPI1->SR & SPI_SR_RXNE))
+//		; //data received?
+//	LL_SPI_ReceiveData8(SPI1);
+//
+//	while (!(SPI1->SR & SPI_SR_TXE))
+//		; //transmit buffer empty?
+//	LL_SPI_TransmitData8(SPI1, 0x00);
+//	while (!(SPI1->SR & SPI_SR_RXNE))
+//		; //data received?
+//	LL_SPI_ReceiveData8(SPI1);
+//
+//	LL_GPIO_SetOutputPin(SPI1_CS_GPIO_PORT, SPI1_CS_PIN); // PC4 CS SET Active Low
+//
+//}
 
 void ReadRegs1(uint8_t ReadAddr, uint8_t *ReadBuf, unsigned int Bytes) {
 	unsigned int i = 0;
@@ -2363,26 +2364,26 @@ void Data_Pause_Resume_PC0_EXTI_conf(void) {
 	LL_EXTI_EnableFallingTrig_0_31(LL_EXTI_LINE_0); // Interrupt configured for Falling edge
 }
 
-void ACC_GPIO_INIT(void) {
-	// Configure SCK Pin connected to PA5, MISO PA6, MOSI PA7
-	LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_5, LL_GPIO_MODE_ALTERNATE);
-	LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_5, LL_GPIO_AF_5);
-	LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_5, LL_GPIO_SPEED_FREQ_VERY_HIGH);
-	LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_5, LL_GPIO_OUTPUT_PUSHPULL);
-	LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_5, LL_GPIO_PULL_NO);
-
-	LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_6, LL_GPIO_MODE_ALTERNATE);
-	LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_6, LL_GPIO_AF_5);
-	LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_6, LL_GPIO_SPEED_FREQ_VERY_HIGH);
-	LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_6, LL_GPIO_OUTPUT_PUSHPULL);
-	LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_6, LL_GPIO_PULL_NO);
-
-	LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_7, LL_GPIO_MODE_ALTERNATE);
-	LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_7, LL_GPIO_AF_5);
-	LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_7, LL_GPIO_SPEED_FREQ_VERY_HIGH);
-	LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_7, LL_GPIO_OUTPUT_PUSHPULL);
-	LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_7, LL_GPIO_PULL_NO);
-}
+//void ACC_GPIO_INIT(void) {
+//	// Configure SCK Pin connected to PA5, MISO PA6, MOSI PA7
+//	LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_5, LL_GPIO_MODE_ALTERNATE);
+//	LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_5, LL_GPIO_AF_5);
+//	LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_5, LL_GPIO_SPEED_FREQ_VERY_HIGH);
+//	LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_5, LL_GPIO_OUTPUT_PUSHPULL);
+//	LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_5, LL_GPIO_PULL_NO);
+//
+//	LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_6, LL_GPIO_MODE_ALTERNATE);
+//	LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_6, LL_GPIO_AF_5);
+//	LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_6, LL_GPIO_SPEED_FREQ_VERY_HIGH);
+//	LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_6, LL_GPIO_OUTPUT_PUSHPULL);
+//	LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_6, LL_GPIO_PULL_NO);
+//
+//	LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_7, LL_GPIO_MODE_ALTERNATE);
+//	LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_7, LL_GPIO_AF_5);
+//	LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_7, LL_GPIO_SPEED_FREQ_VERY_HIGH);
+//	LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_7, LL_GPIO_OUTPUT_PUSHPULL);
+//	LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_7, LL_GPIO_PULL_NO);
+//}
 
 void ACC2_GPIO_INIT(void) {
 	// Configure SCK Pin connected to PB13, MISO PC2, MOSI PB15
@@ -2405,26 +2406,26 @@ void ACC2_GPIO_INIT(void) {
 	LL_GPIO_SetPinPull(GPIOB, LL_GPIO_PIN_15, LL_GPIO_PULL_NO);
 }
 
-void P_IMU1_SPI1_Init(void)  //MPU9250
-{
-
-	LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI1);
-
-	ACC_GPIO_INIT();
-
-	LL_SPI_SetBaudRatePrescaler(SPI1, LL_SPI_BAUDRATEPRESCALER_DIV4); // Must need 8MHz for MPU 9250, Lets try with 6MHz
-	LL_SPI_SetTransferDirection(SPI1, LL_SPI_FULL_DUPLEX);
-	LL_SPI_SetClockPhase(SPI1, LL_SPI_PHASE_2EDGE);
-	LL_SPI_SetClockPolarity(SPI1, LL_SPI_POLARITY_HIGH);
-	LL_SPI_SetTransferBitOrder(SPI1, LL_SPI_MSB_FIRST);
-	LL_SPI_SetDataWidth(SPI1, LL_SPI_DATAWIDTH_8BIT);
-	LL_SPI_SetNSSMode(SPI1, LL_SPI_NSS_SOFT);
-	LL_SPI_SetRxFIFOThreshold(SPI1, LL_SPI_RX_FIFO_TH_QUARTER);
-	LL_SPI_SetMode(SPI1, LL_SPI_MODE_MASTER);
-	LL_SPI_Enable(SPI1);
-	LL_SPI_EnableNSSPulseMgt(SPI1);
-
-}
+//void P_IMU1_SPI1_Init(void)  //MPU9250
+//{
+//
+//	LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI1);
+//
+//	ACC_GPIO_INIT();
+//
+//	LL_SPI_SetBaudRatePrescaler(SPI1, LL_SPI_BAUDRATEPRESCALER_DIV4); // Must need 8MHz for MPU 9250, Lets try with 6MHz
+//	LL_SPI_SetTransferDirection(SPI1, LL_SPI_FULL_DUPLEX);
+//	LL_SPI_SetClockPhase(SPI1, LL_SPI_PHASE_2EDGE);
+//	LL_SPI_SetClockPolarity(SPI1, LL_SPI_POLARITY_HIGH);
+//	LL_SPI_SetTransferBitOrder(SPI1, LL_SPI_MSB_FIRST);
+//	LL_SPI_SetDataWidth(SPI1, LL_SPI_DATAWIDTH_8BIT);
+//	LL_SPI_SetNSSMode(SPI1, LL_SPI_NSS_SOFT);
+//	LL_SPI_SetRxFIFOThreshold(SPI1, LL_SPI_RX_FIFO_TH_QUARTER);
+//	LL_SPI_SetMode(SPI1, LL_SPI_MODE_MASTER);
+//	LL_SPI_Enable(SPI1);
+//	LL_SPI_EnableNSSPulseMgt(SPI1);
+//
+//}
 
 //void MCP_setup(void) {
 //	LL_SPI_InitTypeDef SPI_InitStruct;
