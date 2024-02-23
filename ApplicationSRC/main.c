@@ -10,6 +10,7 @@
 #include "controller.h"
 #include "StateFormulas.h"
 
+
 // Greg Start
 #include "MadgwickAHRS.h"
 // Greg End
@@ -110,7 +111,7 @@ int main(void) {
 	Configure_USART_1();  // Debug with PC
 	sprintf(PrintBuf, "Hello");
 	USART1_wr_print(PrintBuf, sizeof(PrintBuf));
-
+	systick_app_timer_module_init();
 	/*Important information: which IMU interfaced to which SPI */
 //IMU1-2 SPI1 .
 //IMU3   SPI2
@@ -118,7 +119,9 @@ int main(void) {
 	/*Sensor Initialization starts here */
 
 // P_IMU4_SPI3_Initialization_at_reset();   //IMU4-5_SPI3 //step1
-	P_IMU1_SPI1_Initialization_at_reset(); //IMU1-2__SPI1  (only IMU1 configured)
+	//P_IMU1_SPI1_Initialization_at_reset(); //IMU1-2__SPI1  (only IMU1 configured)
+	mpu9255_init();
+	mpu_init();
 	P_ADC_Sensor_GPIO_Init(); //ADC GPIOs //here we initialized the chip select pins as well
 
 	/*CAN Bus SPI Initialization*/
@@ -171,6 +174,7 @@ int main(void) {
 	// Only way to stop Data collection is by accessing SD card from PC LabVIEW program
 
 	while (1) {
+		systick_app_timer_process();
 		if (isProcessKneeRequired) {
 			processKnee();
 			isProcessKneeRequired = 0;
