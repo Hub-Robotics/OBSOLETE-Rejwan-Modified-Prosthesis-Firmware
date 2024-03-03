@@ -174,7 +174,7 @@ int main(void) {
 	// Only way to stop Data collection is by accessing SD card from PC LabVIEW program
 
 	while (1) {
-		systick_app_timer_process();
+
 		if (isProcessKneeRequired) {
 			processKnee();
 			isProcessKneeRequired = 0;
