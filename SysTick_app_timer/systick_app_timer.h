@@ -31,16 +31,16 @@ typedef enum {
  * to the structure. Once changes are complete, enable the channel.
  */
 typedef struct {
-	uint8_t 			channel;					// channel identifier. used for accessing.
-	uint32_t 			value;						// pointer to the counter variable
+	uint8_t 					channel;					// channel identifier. used for accessing.
+	uint32_t 					value;						// counter variable
 	systick_app_timer_mode_t 	mode;						// mode type. continuous will free run, reset on alarm. single will go inactive after an alarm.
-	uint32_t 			alarm;						// (optional) count up alarm value. If set, counter resets to 0 each alarm.
-	void 				(*timerAlarmCallback)(void);// (optional) callback on timer alarm equal
+	uint32_t 					alarm;						// (optional) count up alarm value. If set, counter resets to 0 each alarm.
+	void 						(*timerAlarmCallback)(void);// (optional) callback on timer alarm equal
 } systick_app_timer_t;
 
 typedef struct {
 	uint8_t active;						// flag the channel is active
-	systick_app_timer_t	* timer;				// pointer to the dependent timer structure
+	systick_app_timer_t	* timer;		// pointer to the dependent timer structure
 } systick_app_timer_channel_t;
 
 typedef struct {
@@ -48,6 +48,7 @@ typedef struct {
 	uint8_t count;
 } systick_app_timer_module_t;
 
+void systick_app_timer_tickAndProcess();
 void systick_app_timer_tick();
 uint32_t systick_app_timer_process();
 uint32_t systick_app_timer_channel_delete(uint8_t channel);
