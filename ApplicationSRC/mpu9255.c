@@ -12,6 +12,7 @@
 #include "systick_app_timer.h"
 #include "inv_mpu.h"
 #include "inv_mpu_dmp_motion_driver.h"
+#include "string.h"
 
 /*
  * i2c_write(unsigned char slave_addr, unsigned char reg_addr,
@@ -22,11 +23,22 @@
  * get_ms(unsigned long *count)
 */
 
+#define DEBUG_DMP 1
+
 static systick_app_timer_t delayTimer;
 static systick_app_timer_t readTimer;
-static uint32_t g_ul_ms_ticks = 0;
-static uint32_t ms_delay = 0;
+static volatile uint32_t g_ul_ms_ticks = 0;
+static volatile uint32_t ms_delay = 0;
+static uint32_t updateRequired = false;
 
+#if DEBUG_DMP
+dmp_data_t dmpData[256];
+dmp_data_t lastDmpData;
+static uint8_t readIndex = 0;
+static uint8_t writeIndex = 0;
+#else
+dmp_data_t dmpData;
+#endif
 // CS is active low. This disables the chip
 __STATIC_INLINE void clearChipSelect() {
 	LL_GPIO_SetOutputPin(SPI1_CS_GPIO_PORT, SPI1_CS_PIN);
@@ -80,15 +92,15 @@ int mpu9255_read(unsigned char slave_addr, unsigned char reg_addr,
 	setChipSelect();
 
 	// 4 byte fifo not used. Reads need to be captured.
-	LL_SPI_TransmitData8(SPI1, reg_addr);
-	while ((SPI2->SR & SPI_SR_FRLVL) == 0) {}; 	//wait for SR buffer to have data
-	uint8_t dummy = SPI2->DR; 				// first byte is from cmd transfer. Ignore
+	LL_SPI_TransmitData8(SPI1, (reg_addr | 0x80)); // MSb set signals read.
+	while ((SPI1->SR & SPI_SR_FRLVL) == 0) {}; 	//wait for SR buffer to have data
+	uint8_t dummy = SPI1->DR; 				// first byte is from cmd transfer. Ignore
 	(void)dummy; // suppress unused variable warning
 
 	// read the data sequentially
 	for (uint8_t i = 0; i < length; i++) {
 		LL_SPI_TransmitData8(SPI1, 0xFF);	// send clocking byte, not used.
-		while ((SPI2->SR & SPI_SR_FRLVL) == 0) {}; // wait for SR buffer to have data
+		while ((SPI1->SR & SPI_SR_FRLVL) == 0) {}; // wait for SR buffer to have data
 		data[i] = SPI1->DR;
 	}
 
@@ -101,7 +113,7 @@ int mpu9255_read(unsigned char slave_addr, unsigned char reg_addr,
 
 void mpu9255_delay_ms(unsigned long num_ms) {
 	ms_delay = num_ms;
-	while (ms_delay) {
+	while (ms_delay > 0) {
 		// do nothing while we wait.
 	}
 }
@@ -121,7 +133,7 @@ void delaytimer_event_handler() {
  * Process reading the fifo from the mpu9255
  */
 void readTimer_event_handler() {
-
+	updateRequired = true;
 }
 
 void android_orient_cb(unsigned char orientation) {
@@ -165,9 +177,47 @@ static  unsigned short inv_orientation_matrix_to_scalar(
     return scalar;
 }
 
+dmp_data_t * mpu9255_getLast() {
+#if DEBUG_DMP
+	if (readIndex != writeIndex) {
+		memcpy(&lastDmpData, &dmpData[readIndex], sizeof(dmp_data_t));
+		return &dmpData[readIndex++];
+	} else {
+		// no new data, keep returning last one
+		return &lastDmpData;
+	}
+#else
+	return &dmpData;
+#endif
+}
+
+void mpu9255_process() {
+	if (updateRequired) {
+
+		unsigned char more;
+
+
+#if DEBUG_DMP
+		dmp_read_fifo(dmpData[writeIndex].gyro.array, dmpData[writeIndex].acceleration.array, dmpData[writeIndex].quaternarion.array, &dmpData[writeIndex].timestamp, &dmpData[writeIndex].sensors, &more);
+
+		writeIndex++;
+#else
+		dmp_read_fifo(dmpData.gyro.array, dmpData.acceleration.array, dmpData.quaternarion.array, &dmpData.timestamp, &dmpData.sensors, &more);
+
+#endif
+		if (!more) {
+			updateRequired = false;
+		}
+
+
+	}
+}
+
 void mpu9255_init(uint32_t readPeriod) {
 	spi1_init();
-
+	clearChipSelect();
+	uint8_t whoami;
+	mpu9255_read(0, 0x75, 1, &whoami);
 	delayTimer.mode = APP_TIMER_MODE_CONTINUOUS;
 	delayTimer.alarm = 1; // 1ms
 	delayTimer.timerAlarmCallback = delaytimer_event_handler;
@@ -180,9 +230,13 @@ void mpu9255_init(uint32_t readPeriod) {
 	systick_app_timer_channel_create(&readTimer);
 	// don't start this one until after the dmp is initialized
 
+	// reset internal data
+	memset(&dmpData, 0, sizeof(dmpData));
+
 	// First init the MPU chip
 	struct int_param_s int_param;
 	mpu_init(&int_param);
+	mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL);
 
 	// load dmp and turn on
 	dmp_load_motion_driver_firmware();
@@ -199,9 +253,10 @@ void mpu9255_init(uint32_t readPeriod) {
      * then the interrupts will be at 200Hz even if fifo rate
      * is set at a different rate. To avoid this issue include the DMP_FEATURE_TAP
 	 */
-	dmp_enable_feature(DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_TAP |
-	        DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_RAW_GYRO);
+	dmp_enable_feature(DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_RAW_GYRO);
 
 	dmp_set_fifo_rate(100);
 	mpu_set_dmp_state(1);
+	mpu_reset_fifo();
+	systick_app_timer_channel_start(readTimer.channel);
 }

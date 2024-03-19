@@ -30,7 +30,7 @@ void spi1_init() {
 	LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_7, LL_GPIO_OUTPUT_PUSHPULL);
 	LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_7, LL_GPIO_PULL_NO);
 
-	LL_SPI_SetBaudRatePrescaler(SPI1, LL_SPI_BAUDRATEPRESCALER_DIV4); // Must need 8MHz for MPU 9250, Lets try with 6MHz
+	LL_SPI_SetBaudRatePrescaler(SPI1, LL_SPI_BAUDRATEPRESCALER_DIV64); // Must need 8MHz for MPU 9250, Lets try with 6MHz
 	LL_SPI_SetTransferDirection(SPI1, LL_SPI_FULL_DUPLEX);
 	LL_SPI_SetClockPhase(SPI1, LL_SPI_PHASE_2EDGE);
 	LL_SPI_SetClockPolarity(SPI1, LL_SPI_POLARITY_HIGH);
