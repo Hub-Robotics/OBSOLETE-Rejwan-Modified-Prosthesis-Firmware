@@ -1,4 +1,10 @@
-ApplicationSRC/main.o: ../ApplicationSRC/main.c \
+ApplicationSRC/inv_mpu_dmp_motion_driver.o: \
+ ../ApplicationSRC/inv_mpu_dmp_motion_driver.c \
+ C:\Projects\UA\knee_control\Firmware\IncludesSRC/inv_mpu.h \
+ C:\Projects\UA\knee_control\Firmware\IncludesSRC/inv_mpu_dmp_motion_driver.h \
+ C:\Projects\UA\knee_control\Firmware\IncludesSRC/dmpKey.h \
+ C:\Projects\UA\knee_control\Firmware\IncludesSRC/dmpmap.h \
+ C:\Projects\UA\knee_control\Firmware\IncludesSRC/mpu9255.h \
  C:\Projects\UA\knee_control\Firmware\IncludesSRC/main.h \
  C:\Projects\UA\knee_control\Firmware\Drivers\STM32L4xx_HAL_Driver\Inc/stm32l4xx_ll_adc.h \
  C:\Projects\UA\knee_control\Firmware\Drivers\CMSIS\Device\ST\STM32L4xx\Include/stm32l4xx.h \
@@ -55,41 +61,17 @@ ApplicationSRC/main.o: ../ApplicationSRC/main.c \
  C:\Projects\UA\knee_control\Firmware\Drivers\STM32L4xx_HAL_Driver\Inc/stm32l4xx_ll_rtc.h \
  C:\Projects\UA\knee_control\Firmware\Drivers\STM32L4xx_HAL_Driver\Inc/stm32l4xx_ll_spi.h \
  C:\Projects\UA\knee_control\Firmware\Drivers\STM32L4xx_HAL_Driver\Inc/stm32l4xx_ll_usart.h \
- C:\Projects\UA\knee_control\Firmware\Drivers\STM32L4xx_HAL_Driver\Inc/stm32l4xx_ll_gpio.h \
- C:\Projects\UA\knee_control\Firmware\IncludesSRC/fatfs.h \
- C:\Projects\UA\knee_control\Firmware\Middlewares\Third_Party\FatFs\src/ff.h \
- C:\Projects\UA\knee_control\Firmware\Middlewares\Third_Party\FatFs\src/integer.h \
- C:\Projects\UA\knee_control\Firmware\IncludesSRC/ffconf.h \
- C:\Projects\UA\knee_control\Firmware\IncludesSRC/bsp_driver_sd.h \
- C:\Projects\UA\knee_control\Firmware\Middlewares\Third_Party\FatFs\src/ff_gen_drv.h \
- C:\Projects\UA\knee_control\Firmware\Middlewares\Third_Party\FatFs\src/diskio.h \
- C:\Projects\UA\knee_control\Firmware\Middlewares\Third_Party\FatFs\src/ff.h \
- C:\Projects\UA\knee_control\Firmware\Middlewares\Third_Party\FatFs\src\drivers/sd_diskio.h \
- C:\Projects\UA\knee_control\Firmware\IncludesSRC/gpio_functions.h \
- C:\Projects\UA\knee_control\Firmware\IncludesSRC/time_functions.h \
- C:\Projects\UA\knee_control\Firmware\IncludesSRC/sensor.h \
- C:\Projects\UA\knee_control\Firmware\Middlewares\ST\STM32_USB_Device_Library\Core\Inc/usbd_core.h \
- C:\Projects\UA\knee_control\Firmware\IncludesSRC/usbd_conf.h \
- C:\Projects\UA\knee_control\Firmware\Middlewares\ST\STM32_USB_Device_Library\Core\Inc/usbd_def.h \
- C:\Projects\UA\knee_control\Firmware\Middlewares\ST\STM32_USB_Device_Library\Core\Inc/usbd_ioreq.h \
- C:\Projects\UA\knee_control\Firmware\Middlewares\ST\STM32_USB_Device_Library\Core\Inc/usbd_core.h \
- C:\Projects\UA\knee_control\Firmware\Middlewares\ST\STM32_USB_Device_Library\Core\Inc/usbd_ctlreq.h \
- C:\Projects\UA\knee_control\Firmware\IncludesSRC/usbd_desc.h \
- C:\Projects\UA\knee_control\Firmware\Middlewares\ST\STM32_USB_Device_Library\Core\Inc/usbd_def.h \
- C:\Projects\UA\knee_control\Firmware\Middlewares\ST\STM32_USB_Device_Library\Class\MSC\Inc/usbd_msc.h \
- C:\Projects\UA\knee_control\Firmware\Middlewares\ST\STM32_USB_Device_Library\Class\MSC\Inc/usbd_msc_bot.h \
- C:\Projects\UA\knee_control\Firmware\Middlewares\ST\STM32_USB_Device_Library\Class\MSC\Inc/usbd_msc_scsi.h \
- C:\Projects\UA\knee_control\Firmware\Middlewares\ST\STM32_USB_Device_Library\Core\Inc/usbd_ioreq.h \
- C:\Projects\UA\knee_control\Firmware\IncludesSRC/usbd_storage.h \
- C:\Projects\UA\knee_control\Firmware\IncludesSRC/peripherals.h \
- C:\Projects\UA\knee_control\Firmware\IncludesSRC/usbd_storage.h \
- C:\Projects\UA\knee_control\Firmware\IncludesSRC/controller.h \
- C:\Projects\UA\knee_control\Firmware\IncludesSRC/StateFormulas.h \
- C:\Projects\UA\knee_control\Firmware\IncludesSRC/MadgwickAHRS.h \
- C:\Projects\UA\knee_control\Firmware\IncludesSRC/CAN.h \
- C:\Projects\UA\knee_control\Firmware\IncludesSRC/EPOS4.h \
- C:\Projects\UA\knee_control\Firmware\IncludesSRC/mpu9255.h \
- C:\Projects\UA\knee_control\Firmware\IncludesSRC/knee_control.h
+ C:\Projects\UA\knee_control\Firmware\Drivers\STM32L4xx_HAL_Driver\Inc/stm32l4xx_ll_gpio.h
+
+C:\Projects\UA\knee_control\Firmware\IncludesSRC/inv_mpu.h:
+
+C:\Projects\UA\knee_control\Firmware\IncludesSRC/inv_mpu_dmp_motion_driver.h:
+
+C:\Projects\UA\knee_control\Firmware\IncludesSRC/dmpKey.h:
+
+C:\Projects\UA\knee_control\Firmware\IncludesSRC/dmpmap.h:
+
+C:\Projects\UA\knee_control\Firmware\IncludesSRC/mpu9255.h:
 
 C:\Projects\UA\knee_control\Firmware\IncludesSRC/main.h:
 
@@ -204,71 +186,3 @@ C:\Projects\UA\knee_control\Firmware\Drivers\STM32L4xx_HAL_Driver\Inc/stm32l4xx_
 C:\Projects\UA\knee_control\Firmware\Drivers\STM32L4xx_HAL_Driver\Inc/stm32l4xx_ll_usart.h:
 
 C:\Projects\UA\knee_control\Firmware\Drivers\STM32L4xx_HAL_Driver\Inc/stm32l4xx_ll_gpio.h:
-
-C:\Projects\UA\knee_control\Firmware\IncludesSRC/fatfs.h:
-
-C:\Projects\UA\knee_control\Firmware\Middlewares\Third_Party\FatFs\src/ff.h:
-
-C:\Projects\UA\knee_control\Firmware\Middlewares\Third_Party\FatFs\src/integer.h:
-
-C:\Projects\UA\knee_control\Firmware\IncludesSRC/ffconf.h:
-
-C:\Projects\UA\knee_control\Firmware\IncludesSRC/bsp_driver_sd.h:
-
-C:\Projects\UA\knee_control\Firmware\Middlewares\Third_Party\FatFs\src/ff_gen_drv.h:
-
-C:\Projects\UA\knee_control\Firmware\Middlewares\Third_Party\FatFs\src/diskio.h:
-
-C:\Projects\UA\knee_control\Firmware\Middlewares\Third_Party\FatFs\src/ff.h:
-
-C:\Projects\UA\knee_control\Firmware\Middlewares\Third_Party\FatFs\src\drivers/sd_diskio.h:
-
-C:\Projects\UA\knee_control\Firmware\IncludesSRC/gpio_functions.h:
-
-C:\Projects\UA\knee_control\Firmware\IncludesSRC/time_functions.h:
-
-C:\Projects\UA\knee_control\Firmware\IncludesSRC/sensor.h:
-
-C:\Projects\UA\knee_control\Firmware\Middlewares\ST\STM32_USB_Device_Library\Core\Inc/usbd_core.h:
-
-C:\Projects\UA\knee_control\Firmware\IncludesSRC/usbd_conf.h:
-
-C:\Projects\UA\knee_control\Firmware\Middlewares\ST\STM32_USB_Device_Library\Core\Inc/usbd_def.h:
-
-C:\Projects\UA\knee_control\Firmware\Middlewares\ST\STM32_USB_Device_Library\Core\Inc/usbd_ioreq.h:
-
-C:\Projects\UA\knee_control\Firmware\Middlewares\ST\STM32_USB_Device_Library\Core\Inc/usbd_core.h:
-
-C:\Projects\UA\knee_control\Firmware\Middlewares\ST\STM32_USB_Device_Library\Core\Inc/usbd_ctlreq.h:
-
-C:\Projects\UA\knee_control\Firmware\IncludesSRC/usbd_desc.h:
-
-C:\Projects\UA\knee_control\Firmware\Middlewares\ST\STM32_USB_Device_Library\Core\Inc/usbd_def.h:
-
-C:\Projects\UA\knee_control\Firmware\Middlewares\ST\STM32_USB_Device_Library\Class\MSC\Inc/usbd_msc.h:
-
-C:\Projects\UA\knee_control\Firmware\Middlewares\ST\STM32_USB_Device_Library\Class\MSC\Inc/usbd_msc_bot.h:
-
-C:\Projects\UA\knee_control\Firmware\Middlewares\ST\STM32_USB_Device_Library\Class\MSC\Inc/usbd_msc_scsi.h:
-
-C:\Projects\UA\knee_control\Firmware\Middlewares\ST\STM32_USB_Device_Library\Core\Inc/usbd_ioreq.h:
-
-C:\Projects\UA\knee_control\Firmware\IncludesSRC/usbd_storage.h:
-
-C:\Projects\UA\knee_control\Firmware\IncludesSRC/peripherals.h:
-
-C:\Projects\UA\knee_control\Firmware\IncludesSRC/usbd_storage.h:
-
-C:\Projects\UA\knee_control\Firmware\IncludesSRC/controller.h:
-
-C:\Projects\UA\knee_control\Firmware\IncludesSRC/StateFormulas.h:
-
-C:\Projects\UA\knee_control\Firmware\IncludesSRC/MadgwickAHRS.h:
-
-C:\Projects\UA\knee_control\Firmware\IncludesSRC/CAN.h:
-
-C:\Projects\UA\knee_control\Firmware\IncludesSRC/EPOS4.h:
-
-C:\Projects\UA\knee_control\Firmware\IncludesSRC/mpu9255.h:
-
-C:\Projects\UA\knee_control\Firmware\IncludesSRC/knee_control.h:

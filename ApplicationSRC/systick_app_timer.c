@@ -6,7 +6,7 @@
  */
 
 
-#include <systick_app_timer.h>
+#include "systick_app_timer.h"
 #include "stdlib.h"
 #include "string.h"
 
@@ -131,6 +131,7 @@ uint32_t systick_app_timer_channel_start(uint8_t channel){
 	}
 
 	if (appTimer.channel[channel].timer) {
+		appTimer.channel[channel].timer->value = 0; // reset when starting
 		appTimer.channel[channel].active = true;
 		return 0;
 	}
