@@ -4145,13 +4145,14 @@ int Enc2_GetPosition(void) {
 }
 
 float knee_angle(void) {
-	float knee_position;
-// Greg start comment
+	// Greg start comment
+//	float knee_position;
 //knee_position= -(Enc2_GetPosition()*0.088)+125; //-(Enc2_GetPosition()*0.088-306); //-((Prosthesis_Data(:,36)*0.088)-306)
-
 // Greg end comment
-	knee_position = (Enc2_GetPosition() - 2249) * 0.088;
-// Greg start
+
+	// Greg end comment
+	float knee_position = (Enc2_GetPosition() - 2263.5) * 0.088;
+	// Greg start
 
 	return knee_position;
 }
