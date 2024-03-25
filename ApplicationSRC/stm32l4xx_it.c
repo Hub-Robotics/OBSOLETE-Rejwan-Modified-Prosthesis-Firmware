@@ -4,6 +4,7 @@
 #include "bsp_driver_sd.h"
 
 
+
 extern PCD_HandleTypeDef hpcd;
 extern SD_HandleTypeDef uSdHandle;
 
@@ -141,7 +142,7 @@ void SysTick_Handler(void)
   HAL_IncTick();
   HAL_SYSTICK_IRQHandler();
   /* USER CODE BEGIN SysTick_IRQn 1 */
-
+  systick_app_timer_tickAndProcess();
   /* USER CODE END SysTick_IRQn 1 */
 }
 

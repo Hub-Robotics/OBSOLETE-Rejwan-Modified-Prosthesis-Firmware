@@ -10,13 +10,14 @@
 #include "controller.h"
 #include "StateFormulas.h"
 
+
 // Greg Start
 #include "MadgwickAHRS.h"
 // Greg End
 
 #include "CAN.h"
 #include "EPOS4.h"
-
+#include "mpu9255.h"
 #include "knee_control.h"
 
 int CAN_ID = 0x601;
@@ -110,7 +111,7 @@ int main(void) {
 	Configure_USART_1();  // Debug with PC
 	sprintf(PrintBuf, "Hello");
 	USART1_wr_print(PrintBuf, sizeof(PrintBuf));
-
+	systick_app_timer_module_init();
 	/*Important information: which IMU interfaced to which SPI */
 //IMU1-2 SPI1 .
 //IMU3   SPI2
@@ -118,7 +119,9 @@ int main(void) {
 	/*Sensor Initialization starts here */
 
 // P_IMU4_SPI3_Initialization_at_reset();   //IMU4-5_SPI3 //step1
-	P_IMU1_SPI1_Initialization_at_reset(); //IMU1-2__SPI1  (only IMU1 configured)
+	//P_IMU1_SPI1_Initialization_at_reset(); //IMU1-2__SPI1  (only IMU1 configured)
+	mpu9255_init(10);
+	readTimer_event_handler();
 	P_ADC_Sensor_GPIO_Init(); //ADC GPIOs //here we initialized the chip select pins as well
 
 	/*CAN Bus SPI Initialization*/
@@ -152,7 +155,7 @@ int main(void) {
 	Configure_LPTIM2_Int(); // Configured LPTIM2 but not started. To be started before going to Loop
 	Configure_Interrupt();       // Re-arrange NVIC interrupt priority
 
-	Power_on_reset();            // Following reset is found by troubleshooting
+	//Power_on_reset();            // Following reset is found by troubleshooting
 
 #ifdef AIM_Start_Data_Collection_on_Reset
 	AIM_DataStart_at_Reset();
@@ -165,16 +168,21 @@ int main(void) {
 	Pros_state = Dormant_Idle_Stop;
 #endif
 
+//	while (1) {
+//		mpu9255_process();
+//	}
 	// USB Default mode is USB VCP
 	// Note: Data collection is stopped in Power on Reset. Send the command from PC LabVIEW software in USB VCP Mode to start data collection.
 	// Data collection will resume after USB disconnect.
 	// Only way to stop Data collection is by accessing SD card from PC LabVIEW program
 
 	while (1) {
+
 		if (isProcessKneeRequired) {
 			processKnee();
 			isProcessKneeRequired = 0;
 		}
+		mpu9255_process();
 		switch (Pros_state) {
 		case LP_STOP:      // Default mode for data collection
 			EnterStop();   // Enter Stop Mode

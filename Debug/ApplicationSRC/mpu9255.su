@@ -1,0 +1,12 @@
+mpu9255.c:135:6:readTimer_event_handler	0	static
+mpu9255.c:139:6:android_orient_cb	0	static
+mpu9255.c:142:6:tap_cb	0	static
+mpu9255.c:125:6:delaytimer_event_handler	0	static
+mpu9255.c:146:24:inv_row_2_scale	0	static
+mpu9255.c:52:5:mpu9255_write	8	static
+mpu9255.c:87:5:mpu9255_read	12	static
+mpu9255.c:114:6:mpu9255_delay_ms	0	static
+mpu9255.c:121:6:mpu9255_get_ms	0	static
+mpu9255.c:180:14:mpu9255_getLast	20	static
+mpu9255.c:194:6:mpu9255_process	40	static
+mpu9255.c:216:6:mpu9255_init	48	static
