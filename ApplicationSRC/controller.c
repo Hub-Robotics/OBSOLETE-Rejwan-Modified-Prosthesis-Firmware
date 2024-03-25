@@ -105,13 +105,13 @@ enum states{
     STANCE,
 	SWING
 };
-enum states state = STANCE;
+enum states state = SWING;
 
 #define ST_damping      0.00     // (Vanderbilt = 0 (N/m) / (deg/s))
-#define SW_damping      0.00     // (Vanderbilt = 0 (N/m) / (deg/s))
+#define SW_damping      0.05     // 0.05 used to get zero overshoot and 0.5 sec settling time (Vanderbilt = 0 (N/m) / (deg/s))
 
-#define ST_stiffness    2.50     // (Vanderbilt = 4.97 (N/m) / deg)
-#define SW_stiffness    0.65     // (Vanderbilt = 0.65 (N/m) / deg)
+#define ST_stiffness    2.50     // 2.50 used to keep heat down in EPOS (Vanderbilt = 4.97 (N/m) / deg)
+#define SW_stiffness    0.45     // 0.45 on the bench "feels" right (Vanderbilt = 0.65 (N/m) / deg)
 
 #define ST_equilibrium -4.99     // (Vanderbilt = -4.99 deg)
 #define SW_equilibrium -35.0     // (Vanderbilt = -35.0 deg)
