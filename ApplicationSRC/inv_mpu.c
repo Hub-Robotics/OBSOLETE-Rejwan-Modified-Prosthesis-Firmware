@@ -763,7 +763,7 @@ int mpu_init(struct int_param_s *int_param)
 
     if (mpu_set_gyro_fsr(2000))
         return -1;
-    if (mpu_set_accel_fsr(2))
+    if (mpu_set_accel_fsr(8))
         return -1;
     if (mpu_set_lpf(188))
         return -1;
