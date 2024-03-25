@@ -1,0 +1,7 @@
+stm32l4xx_ll_gpio.h:579:22:LL_GPIO_SetAFPin_0_7.constprop	8	static
+stm32l4xx_ll_gpio.h:507:22:LL_GPIO_SetPinPull.constprop	8	static
+stm32l4xx_ll_gpio.h:436:22:LL_GPIO_SetPinSpeed.constprop	8	static
+stm32l4xx_ll_gpio.h:296:22:LL_GPIO_SetPinMode.constprop	8	static
+spi1.c:11:6:spi1_init	16	static
+spi1.c:46:5:spi1_write	0	static
+spi1.c:51:5:spi1_read	0	static

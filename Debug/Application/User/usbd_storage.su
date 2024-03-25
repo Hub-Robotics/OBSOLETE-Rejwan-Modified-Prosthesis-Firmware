@@ -1,0 +1,7 @@
+usbd_storage.c:169:8:STORAGE_IsWriteProtected	0	static
+usbd_storage.c:217:8:STORAGE_GetMaxLun	0	static
+usbd_storage.c:104:8:STORAGE_Init	8	static
+usbd_storage.c:118:8:STORAGE_GetCapacity	104	static
+usbd_storage.c:181:8:STORAGE_Read	24	static
+usbd_storage.c:200:8:STORAGE_Write	24	static
+usbd_storage.c:139:8:STORAGE_IsReady	8	static
