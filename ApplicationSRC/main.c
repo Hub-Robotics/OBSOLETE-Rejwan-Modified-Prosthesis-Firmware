@@ -149,19 +149,6 @@ int main(void) {
 	/* remove spikes from the beginning part*/
 	for (int jj = 1; jj < 1000; ++jj);
 
-//	while(1)
-//	{
-//		EPOS4_CST_apply_torque(CAN_ID,63); //100 means 10% = 0.8A current; 1000=100%=8A
-//		delay_us(250000);
-//		EPOS4_CST_stop(CAN_ID);
-//		delay_us(1000000);
-//
-//		EPOS4_CST_apply_torque(CAN_ID,-63);
-//		delay_us(250000);
-//		EPOS4_CST_stop(CAN_ID);
-//		delay_us(1000000);
-//	}
-
 	USB_PA9_EXTI_conf(); // USB connectivity pin detect Interrupt // Data_Pause_Resume_PC0_EXTI_conf();
 
 	Configure_LPTIM2_Int(); // Configured LPTIM2 but not started. To be started before going to Loop
