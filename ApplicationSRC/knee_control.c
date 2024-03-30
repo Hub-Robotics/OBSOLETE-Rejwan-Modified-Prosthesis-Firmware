@@ -15,6 +15,7 @@
 // Greg start
 #include "gpio_functions.h"
 #include "MadgwickAHRS.h"
+#include "mpu9255.h"
 // Greg end
 
 extern int CAN_ID;
@@ -115,15 +116,18 @@ void processKnee() {
 		}
 
 		// Get raw IMU data
-		imu_data_now = IMU1_read();
+//		imu_data_now = IMU1_read();
+		dmp_data_t *imu_data = mpu9255_getLast();   // UPDATE IMU DATA NOW !!!
 
+		short ax = imu_data->acceleration.data.x;
+		imu_data->acceleration.array[0];
 		// Remove offsets from gyro
-		imu_data_now.GX -= -60;
-		imu_data_now.GY -= -29;
-		imu_data_now.GZ -= -16;
+//		imu_data_now.GX -= -60;
+//		imu_data_now.GY -= -29;
+//		imu_data_now.GZ -= -16;
 
 		// Get accel data for heel strike if needed
-		IMU_acc = -imu_data_now.AY;
+//		IMU_acc = -imu_data_now.AY;
 
 		// Compute hip angle using
 		// 1) Madgwick filter (assumes X+ forward and Z+ upward)
