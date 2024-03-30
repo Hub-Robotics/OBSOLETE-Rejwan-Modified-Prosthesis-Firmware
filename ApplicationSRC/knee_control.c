@@ -14,8 +14,8 @@
 
 // Greg start
 #include "gpio_functions.h"
-#include "MadgwickAHRS.h"
 #include "mpu9255.h"
+#include "math.h"
 // Greg end
 
 extern int CAN_ID;
@@ -34,16 +34,16 @@ extern int CAN_ID;
 
 // Greg start
 uint8_t count = 1;
-uint16_t Loadcell_top_m2;
-uint16_t Loadcell_top_m1;
-uint16_t Loadcell_bot_m2;
-uint16_t Loadcell_bot_m1;
+uint16_t Loadcell_top_m2;			// m2 = minus 2, used in 2nd order filter
+uint16_t Loadcell_top_m1;			// m1 = minus 1, used in 2nd order filter
+uint16_t Loadcell_bot_m2;			// m2 = minus 2, used in 2nd order filter
+uint16_t Loadcell_bot_m1;			// m1 = minus 1, used in 2nd order filter
 float Loadcell_top_filtered;
-float Loadcell_top_filtered_m2;
-float Loadcell_top_filtered_m1;
+float Loadcell_top_filtered_m2;		// m2 = minus 2, used in 2nd order filter
+float Loadcell_top_filtered_m1;		// m1 = minus 1, used in 2nd order filter
 float Loadcell_bot_filtered;
-float Loadcell_bot_filtered_m2;
-float Loadcell_bot_filtered_m1;
+float Loadcell_bot_filtered_m2;		// m2 = minus 2, used in 2nd order filter
+float Loadcell_bot_filtered_m1;		// m1 = minus 1, used in 2nd order filter
 float const dt_s = 1.0/512;
 
 float hip_angle = 0.0;
@@ -52,24 +52,37 @@ float angular_velocity = 0.0;
 float old_angular_velocity = 0.0;
 float IMU_acc = 0.0;
 struct imu_data imu_data_now;
-float imu_angle_past = 0.0, imu_angle_now;
+float imu_angle_now;
+float imu_angle_past;
 
 float tau              = 1/(2*3.1416*10);
 float Ts               = 1/512.0;
+
+struct imu_data AccelCal (struct imu_data imu_data_now);
 // Greg end
 
 
-void processKnee() {
+void processKnee () {
 	if (Data_log_Start_Resume == 1) // Sensor Start Flag from VCP command / FATFS SD card file
 	{
-		// Get knee angle in deg
+		// Get knee angle in degrees
 		float angle_now = knee_angle();
 
+		// Initialize knee angle with first knee angle (used in hip  angle    computation)
+		// Initialize IMU  angle with first knee angle (used in knee velocity computation)
+		if (count == 1)
+		{
+			angle_old      = angle_now;				// Units in degrees
+			imu_angle_past = angle_now / (rad2deg);	// Units in radians
+		}
+
 		// Compute knee velocity with practical differentiator (fc = 10 Hz, bilinear transformation used)
+		// Units in degrees per second
 		angular_velocity = (2*(angle_now - angle_old)+(2*tau-Ts)*angular_velocity) / (Ts+2*tau);
 		angle_old        = angle_now;
 
 		// Filter load cell with 2nd order low-pass Butterworth (fc = 20 Hz)
+		// Units in ADC values
 		uint16_t Loadcell_top = Read_Loadcell1();
 		uint16_t Loadcell_bot = Read_Loadcell2();
 		if (count == 1)
@@ -98,45 +111,41 @@ void processKnee() {
 		}
 		else
 		{
-			Loadcell_top_filtered = 1.6556f * Loadcell_top_filtered_m1
-					- 0.7068 * Loadcell_top_filtered_m2 + 0.0128 * Loadcell_top
-					+ 0.0256 * Loadcell_top_m1 + 0.0128 * Loadcell_top_m2;
+			Loadcell_top_filtered    =    1.6556f * Loadcell_top_filtered_m1
+										- 0.7068 * Loadcell_top_filtered_m2 + 0.0128 * Loadcell_top
+										+ 0.0256 * Loadcell_top_m1 + 0.0128 * Loadcell_top_m2;
 			Loadcell_top_m2          = Loadcell_top_m1;
 			Loadcell_top_m1          = Loadcell_top;
 			Loadcell_top_filtered_m2 = Loadcell_top_filtered_m1;
 			Loadcell_top_filtered_m1 = Loadcell_top_filtered;
 
-			Loadcell_bot_filtered = 1.6556 * Loadcell_bot_filtered_m1
-					- 0.7068 * Loadcell_bot_filtered_m2 + 0.0128 * Loadcell_bot
-					+ 0.0256 * Loadcell_bot_m1 + 0.0128 * Loadcell_bot_m2;
+			Loadcell_bot_filtered    =    1.6556 * Loadcell_bot_filtered_m1
+										- 0.7068 * Loadcell_bot_filtered_m2 + 0.0128 * Loadcell_bot
+										+ 0.0256 * Loadcell_bot_m1 + 0.0128 * Loadcell_bot_m2;
 			Loadcell_bot_m2          = Loadcell_bot_m1;
 			Loadcell_bot_m1          = Loadcell_bot;
 			Loadcell_bot_filtered_m2 = Loadcell_bot_filtered_m1;
 			Loadcell_bot_filtered_m1 = Loadcell_bot_filtered;
 		}
 
-		// Get raw IMU data
-//		imu_data_now = IMU1_read();
-		dmp_data_t *imu_data = mpu9255_getLast();   // UPDATE IMU DATA NOW !!!
+		// Get raw IMU data in ADC values
+		imu_data_now = IMU1_read();
 
-		short ax = imu_data->acceleration.data.x;
-		imu_data->acceleration.array[0];
-		// Remove offsets from gyro
-//		imu_data_now.GX -= -60;
-//		imu_data_now.GY -= -29;
-//		imu_data_now.GZ -= -16;
+		// Calibrate accelerometer in ADC values
+		imu_data_now = AccelCal(imu_data_now);
 
-		// Get accel data for heel strike if needed
-//		IMU_acc = -imu_data_now.AY;
+		// Remove offsets from gyro in ADC values
+		imu_data_now.GX -= -60;
+		imu_data_now.GY -= -29;
+		imu_data_now.GZ -=  16;
 
-		// Compute hip angle using
-		// 1) Madgwick filter (assumes X+ forward and Z+ upward)
-//		hip_angle = -MadgwickAHRSupdateIMU(imu_data_now.GX/32.8*(3.1416/180), -imu_data_now.GZ/32.8*(3.1416/180), imu_data_now.GY/32.8*(3.1416/180), imu_data_now.AX, -imu_data_now.AZ, imu_data_now.AY);
-//		hip_angle = hip_angle*rad2deg - angle_now;
-		// 2) Complementary filter
-		imu_angle_now  = IMU_orientation(imu_data_now, imu_angle_past, dt_s);
-		imu_angle_past = imu_angle_now;
-		hip_angle      = (imu_angle_now * rad2deg) - angle_now;
+		// Get accel data for heel strike if needed in ADC values
+		IMU_acc = -imu_data_now.AY;
+
+		// Compute hip angle using complementary filter
+		imu_angle_now  = IMU_orientation(imu_data_now, imu_angle_past, dt_s);	// Units in radians
+		imu_angle_past = imu_angle_now;											// Units in radians
+		hip_angle      = imu_angle_now*rad2deg - angle_now;						// Units in degrees
 
 		// Measure speed with oscope start
 		LL_GPIO_SetOutputPin(GPIOB, LL_GPIO_PIN_11);
@@ -147,9 +156,9 @@ void processKnee() {
 		// Measure speed with oscope end
 		LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_11);
 
-		// ???
-		F_Sensor_ADC_Store();
-		Mag_Enc2_Store();
+		// CAN WE DELETE THIS ??? CAUSES DIFFERENT GYRO READINGS FOR SOME REASON
+//		F_Sensor_ADC_Store();
+//		Mag_Enc2_Store();
 
 		// Store data
 		// Data can only be stored as integers, so some scaling is done to help resolution
@@ -189,3 +198,34 @@ void processKnee() {
 	}
 }
 
+struct imu_data AccelCal (struct imu_data imu_data_now)
+{
+	// Separate data in ADC values
+	float ax = imu_data_now.AX;
+	float ay = imu_data_now.AY;
+	float az = imu_data_now.AZ;
+
+	// Accelerometer bias in ADV values
+	float bx = 0.0198038816126119 * 4096;
+	float by = 0.0223486211295295 * 4096;
+	float bz = 0.0296143940007433 * 4096;
+
+	// Sine/Cosine of Euler angles (1 = alpha, 2 = beta, 3 = gamma)
+	float c1 = cos(-0.00991457347766541);
+	float c2 = cos(-0.00385752322363421);
+	float c3 = cos(-0.009920754204949  );
+	float s1 = sin(-0.00991457347766541);
+	float s2 = sin(-0.00385752322363421);
+	float s3 = sin(-0.009920754204949  );
+
+	// Scaling factor (helps with normalization)
+	float n = 1.00509896445316;
+
+	// Accelerometer calibration in radians
+	imu_data_now.AX = n * ( ax*(c1*c3 - c2*s1*s3) + ay*(  -c3*s1 - c1*c2*s3) + az*( s2*s3) ) - bx;
+	imu_data_now.AY = n * ( ax*(c1*s3 + c2*c3*s1) + ay*(c1*c2*c3 - s1*s3   ) + az*(-c3*s2) ) - by;
+	imu_data_now.AZ = n * ( ax*(        s1*s2   ) + ay*(           c1*s2   ) + az*( c2   ) ) - bz;
+
+	// Return in radians
+	return imu_data_now;
+}
