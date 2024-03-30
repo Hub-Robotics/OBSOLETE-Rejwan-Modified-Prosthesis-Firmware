@@ -182,6 +182,12 @@ int main(void) {
 			isProcessKneeRequired = 0;
 		}
 		mpu9255_process();
+
+		// Need to set this up
+//		dmp_data_t *imu_data = mpu9255_getLast();   // UPDATE IMU DATA NOW !!!
+//		short ax = imu_data->acceleration.data.x;
+//		imu_data->acceleration.array[0];
+
 		switch (Pros_state) {
 		case LP_STOP:      // Default mode for data collection
 			EnterStop();   // Enter Stop Mode
