@@ -221,11 +221,11 @@ struct imu_data AccelCal (struct imu_data imu_data_now)
 	// Scaling factor (helps with normalization)
 	float n = 1.00509896445316;
 
-	// Accelerometer calibration in radians
+	// Accelerometer calibration in ADC values
 	imu_data_now.AX = n * ( ax*(c1*c3 - c2*s1*s3) + ay*(  -c3*s1 - c1*c2*s3) + az*( s2*s3) ) - bx;
 	imu_data_now.AY = n * ( ax*(c1*s3 + c2*c3*s1) + ay*(c1*c2*c3 - s1*s3   ) + az*(-c3*s2) ) - by;
 	imu_data_now.AZ = n * ( ax*(        s1*s2   ) + ay*(           c1*s2   ) + az*( c2   ) ) - bz;
 
-	// Return in radians
+	// Return in ADC values
 	return imu_data_now;
 }
