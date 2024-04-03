@@ -156,10 +156,6 @@ void processKnee () {
 		// Measure speed with oscope end
 		LL_GPIO_ResetOutputPin(GPIOB, LL_GPIO_PIN_11);
 
-		// CAN WE DELETE THIS ??? CAUSES DIFFERENT GYRO READINGS FOR SOME REASON
-//		F_Sensor_ADC_Store();
-//		Mag_Enc2_Store();
-
 		// Store data
 		// Data can only be stored as integers, so some scaling is done to help resolution
 		Knee_data_storeIMU(imu_data_now.AX, imu_data_now.AY, imu_data_now.AZ, imu_data_now.GX, imu_data_now.GY, imu_data_now.GZ);
