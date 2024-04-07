@@ -31,17 +31,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
  13 .debug_aranges 00002430  00000000  00000000  00093e38  2**3
                   CONTENTS, READONLY, DEBUGGING
- 14 .debug_line   0001a77e  00000000  00000000  00096268  2**0
+ 14 .debug_line   0001bae6  00000000  00000000  00096268  2**0
                   CONTENTS, READONLY, DEBUGGING
- 15 .debug_str    0000cdec  00000000  00000000  000b09e6  2**0
+ 15 .debug_str    0000cdc1  00000000  00000000  000b1d4e  2**0
                   CONTENTS, READONLY, DEBUGGING
- 16 .comment      0000007c  00000000  00000000  000bd7d2  2**0
+ 16 .comment      0000007c  00000000  00000000  000beb0f  2**0
                   CONTENTS, READONLY
- 17 .debug_loc    00020672  00000000  00000000  000bd84e  2**0
+ 17 .debug_loc    00020672  00000000  00000000  000beb8b  2**0
                   CONTENTS, READONLY, DEBUGGING
- 18 .debug_ranges 000040f8  00000000  00000000  000ddec0  2**3
+ 18 .debug_ranges 000040f8  00000000  00000000  000df200  2**3
                   CONTENTS, READONLY, DEBUGGING
- 19 .debug_frame  00007514  00000000  00000000  000e1fb8  2**2
+ 19 .debug_frame  00007514  00000000  00000000  000e32f8  2**2
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -15273,12 +15273,6 @@ ErrorStatus LL_GPIO_Init(GPIO_TypeDef *GPIOx, LL_GPIO_InitTypeDef *GPIO_InitStru
   /* Initialize  pinpos on first pin set */
   pinpos = POSITION_VAL(GPIO_InitStruct->Pin);
  8006318:	680a      	ldr	r2, [r1, #0]
-__attribute__((always_inline)) __STATIC_INLINE uint32_t __RBIT(uint32_t value)
-{
-  uint32_t result;
-
-#if       (__CORTEX_M >= 0x03U) || (__CORTEX_SC >= 300U)
-   __ASM volatile ("rbit %0, %1" : "=r" (result) : "r" (value) );
  800631a:	fa92 f4a2 	rbit	r4, r2
 
   /* Configure the port pins */
@@ -18372,11 +18366,6 @@ HAL_SD_ErrorTypedef SD_DMAConfigRx(SD_HandleTypeDef *hsd)
   status = HAL_DMA_Init(&hdma_rx);
  8007338:	4620      	mov	r0, r4
  800733a:	f7fc fb0b 	bl	8003954 <HAL_DMA_Init>
-  {
-    SCB->SHP[(((uint32_t)(int32_t)IRQn) & 0xFUL)-4UL] = (uint8_t)((priority << (8U - __NVIC_PRIO_BITS)) & (uint32_t)0xFFUL);
-  }
-  else
-  {
     NVIC->IP[((uint32_t)(int32_t)IRQn)]               = (uint8_t)((priority << (8U - __NVIC_PRIO_BITS)) & (uint32_t)0xFFUL);
  800733e:	4b08      	ldr	r3, [pc, #32]	; (8007360 <SD_DMAConfigRx+0x60>)
  8007340:	2230      	movs	r2, #48	; 0x30
@@ -22785,11 +22774,6 @@ void processKnee() {
 		imu_angle_past = imu_angle_now;
 		hip_angle      = (imu_angle_now * rad2deg) - angle_now;
  8008ed6:	f8df 8290 	ldr.w	r8, [pc, #656]	; 8009168 <processKnee+0x350>
-  *         @arg @ref LL_GPIO_PIN_ALL
-  * @retval None
-  */
-__STATIC_INLINE void LL_GPIO_SetOutputPin(GPIO_TypeDef *GPIOx, uint32_t PinMask)
-{
   WRITE_REG(GPIOx->BSRR, PinMask);
  8008eda:	f8df a290 	ldr.w	sl, [pc, #656]	; 800916c <processKnee+0x354>
 
@@ -22893,11 +22877,6 @@ __STATIC_INLINE void LL_GPIO_SetOutputPin(GPIO_TypeDef *GPIOx, uint32_t PinMask)
  8008f9e:	f7fe fae3 	bl	8007568 <controller_impedance>
  8008fa2:	9a03      	ldr	r2, [sp, #12]
  8008fa4:	4d64      	ldr	r5, [pc, #400]	; (8009138 <processKnee+0x320>)
-  *         @arg @ref LL_GPIO_PIN_ALL
-  * @retval None
-  */
-__STATIC_INLINE void LL_GPIO_ResetOutputPin(GPIO_TypeDef *GPIOx, uint32_t PinMask)
-{
   WRITE_REG(GPIOx->BRR, PinMask);
  8008fa6:	9b06      	ldr	r3, [sp, #24]
  8008fa8:	ca07      	ldmia	r2, {r0, r1, r2}
@@ -24429,11 +24408,6 @@ void mpu9255_init(uint32_t readPeriod) {
 080099dc <NVIC_SystemReset>:
   __ASM volatile ("dsb 0xF":::"memory");
  80099dc:	f3bf 8f4f 	dsb	sy
-__STATIC_INLINE void NVIC_SystemReset(void)
-{
-  __DSB();                                                          /* Ensure all outstanding memory accesses included
-                                                                       buffered write are completed before reset */
-  SCB->AIRCR  = (uint32_t)((0x5FAUL << SCB_AIRCR_VECTKEY_Pos)    |
                            (SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) |
  80099e0:	4905      	ldr	r1, [pc, #20]	; (80099f8 <NVIC_SystemReset+0x1c>)
   SCB->AIRCR  = (uint32_t)((0x5FAUL << SCB_AIRCR_VECTKEY_Pos)    |
