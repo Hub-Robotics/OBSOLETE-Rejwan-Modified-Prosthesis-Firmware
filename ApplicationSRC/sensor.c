@@ -4145,13 +4145,14 @@ int Enc2_GetPosition(void) {
 }
 
 float knee_angle(void) {
-	float knee_position;
-// Greg start comment
+	// Greg start comment
+//	float knee_position;
 //knee_position= -(Enc2_GetPosition()*0.088)+125; //-(Enc2_GetPosition()*0.088-306); //-((Prosthesis_Data(:,36)*0.088)-306)
-
 // Greg end comment
-	knee_position = (Enc2_GetPosition() - 2249) * 0.088;
-// Greg start
+
+	// Greg end comment
+	float knee_position = (Enc2_GetPosition() - 2249) * 0.088;
+	// Greg start
 
 	return knee_position;
 }
@@ -4161,7 +4162,7 @@ float IMU_orientation(struct imu_data imuMyData, float last_angle, float dt_s)
 	struct imu_angle gyro, accel, accel_angle, gyro_angle;
 	float DEGREES_TO_RADIANS = 3.14159 / 180;
 
-	// User defined constant for complementary filter
+	// User defined constant for complementary filter (best value found from trial and error)
 	float alpha = 0.002;
 
 	// Convert IMU to gs and rad/sec
@@ -4192,7 +4193,7 @@ float IMU_orientation(struct imu_data imuMyData, float last_angle, float dt_s)
 	// Compute angle using complementary filter
 	float imu_angle = accel_angle.z*alpha + (1-alpha) * (gyro_angle.z + last_angle);
 
-	// Return angle
-	return (imu_angle);
+	// Return
+	return imu_angle;
 }
 

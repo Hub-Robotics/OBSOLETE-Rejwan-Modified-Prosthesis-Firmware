@@ -165,4 +165,4 @@ sensor.c:4031:6:Mag_Enc1_Store	0	static
 sensor.c:4070:6:Mag_Enc2_Store	24	static
 sensor.c:4108:5:Enc2_GetPosition	24	static
 sensor.c:4147:7:knee_angle	8	static
-sensor.c:4159:7:IMU_orientation	64	static
+sensor.c:4160:7:IMU_orientation	64	static

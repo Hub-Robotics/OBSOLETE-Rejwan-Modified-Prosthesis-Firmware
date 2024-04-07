@@ -149,7 +149,6 @@ int main(void) {
 	/* remove spikes from the beginning part*/
 	for (int jj = 1; jj < 1000; ++jj);
 
-
 	USB_PA9_EXTI_conf(); // USB connectivity pin detect Interrupt // Data_Pause_Resume_PC0_EXTI_conf();
 
 	Configure_LPTIM2_Int(); // Configured LPTIM2 but not started. To be started before going to Loop
@@ -183,6 +182,12 @@ int main(void) {
 			isProcessKneeRequired = 0;
 		}
 		mpu9255_process();
+
+		// Need to set this up
+//		dmp_data_t *imu_data = mpu9255_getLast();   // UPDATE IMU DATA NOW !!!
+//		short ax = imu_data->acceleration.data.x;
+//		imu_data->acceleration.array[0];
+
 		switch (Pros_state) {
 		case LP_STOP:      // Default mode for data collection
 			EnterStop();   // Enter Stop Mode
