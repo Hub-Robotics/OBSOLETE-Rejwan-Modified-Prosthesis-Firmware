@@ -18,9 +18,13 @@ C_DEPS :=
 SUBDIRS := \
 ApplicationSRC \
 Drivers/CMSIS/Device/ST/STM32L4xx/Source/Templates/gcc \
+Drivers/MCP25625 \
+Drivers/MPU9255 \
 Drivers/STM32L4xx_HAL_Driver/Src \
+Middlewares/DMP \
 Middlewares/ST/STM32_USB_Device_Library/Class/MSC/Src \
 Middlewares/ST/STM32_USB_Device_Library/Core/Src \
+Middlewares/SystickAppTimer \
 Middlewares/Third_Party/FatFs/src \
 Middlewares/Third_Party/FatFs/src/drivers \
 Middlewares/Third_Party/FatFs/src/option \

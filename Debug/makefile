@@ -11,9 +11,13 @@ RM := rm -rf
 -include Middlewares/Third_Party/FatFs/src/option/subdir.mk
 -include Middlewares/Third_Party/FatFs/src/drivers/subdir.mk
 -include Middlewares/Third_Party/FatFs/src/subdir.mk
+-include Middlewares/SystickAppTimer/subdir.mk
 -include Middlewares/ST/STM32_USB_Device_Library/Core/Src/subdir.mk
 -include Middlewares/ST/STM32_USB_Device_Library/Class/MSC/Src/subdir.mk
+-include Middlewares/DMP/subdir.mk
 -include Drivers/STM32L4xx_HAL_Driver/Src/subdir.mk
+-include Drivers/MPU9255/subdir.mk
+-include Drivers/MCP25625/subdir.mk
 -include Drivers/CMSIS/Device/ST/STM32L4xx/Source/Templates/gcc/subdir.mk
 -include ApplicationSRC/subdir.mk
 -include subdir.mk
