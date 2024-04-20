@@ -240,9 +240,9 @@ void mpu9255_init(uint32_t readPeriod) {
 
 	// load dmp and turn on
 	dmp_load_motion_driver_firmware();
-	const signed char orientation[9] = {-1, 0, 0,
-							0, -1, 0,
-							0, 0, 1};
+	const signed char orientation[9] = {1, 0, 0,
+							0, 0, -1,
+							0, 1, 0};
 
 	dmp_set_orientation( inv_orientation_matrix_to_scalar(orientation));
 	dmp_register_tap_cb(tap_cb);

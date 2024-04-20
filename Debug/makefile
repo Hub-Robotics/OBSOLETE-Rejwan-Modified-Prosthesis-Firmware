@@ -37,18 +37,18 @@ EXECUTABLES \
 
 
 # All Target
-all: knee_can_impedance_position_control_new_store_v4.elf secondary-outputs
+all: rejwan_prosthesis.elf secondary-outputs
 
 # Tool invocations
-knee_can_impedance_position_control_new_store_v4.elf: $(OBJS) $(USER_OBJS)
-	arm-atollic-eabi-gcc -o "knee_can_impedance_position_control_new_store_v4.elf" $(OBJS) $(USER_OBJS) $(LIBS) -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -T"../Debug_STM32L476RG_FLASH.ld" -specs=nosys.specs -static -Wl,-cref,-u,Reset_Handler "-Wl,-Map=knee_can_impedance_position_control_new_store_v4.map" -Wl,--gc-sections -Wl,--defsym=malloc_getpagesize_P=0x80 -Wl,--start-group -lc -lm -Wl,--end-group -specs=nano.specs
+rejwan_prosthesis.elf: $(OBJS) $(USER_OBJS)
+	arm-atollic-eabi-gcc -o "rejwan_prosthesis.elf" $(OBJS) $(USER_OBJS) $(LIBS) -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -T"../Debug_STM32L476RG_FLASH.ld" -specs=nosys.specs -static -Wl,-cref,-u,Reset_Handler "-Wl,-Map=rejwan_prosthesis.map" -Wl,--gc-sections -Wl,--defsym=malloc_getpagesize_P=0x80 -Wl,--start-group -lc -lm -Wl,--end-group -specs=nano.specs
 
-EXECUTABLES: knee_can_impedance_position_control_new_store_v4.elf $(EXECUTABLES)
-	"C:\Program Files (x86)\Atollic\TrueSTUDIO for STM32 9.3.0\ide\jre\bin\java" -jar "C:\Program Files (x86)\Atollic\TrueSTUDIO for STM32 9.3.0\Tools\arm-atollic-reports.jar" convert-hex sizeinfo list knee_can_impedance_position_control_new_store_v4.elf
+EXECUTABLES: rejwan_prosthesis.elf $(EXECUTABLES)
+	"C:\Program Files (x86)\Atollic\TrueSTUDIO for STM32 9.3.0\ide\jre\bin\java" -jar "C:\Program Files (x86)\Atollic\TrueSTUDIO for STM32 9.3.0\Tools\arm-atollic-reports.jar" convert-hex sizeinfo list rejwan_prosthesis.elf
 
 # Other Targets
 clean:
-	-$(RM) $(EXECUTABLES)$(SECOUTPUTBUILDVAR)$(OBJS)$(C_DEPS) knee_can_impedance_position_control_new_store_v4.elf
+	-$(RM) $(EXECUTABLES)$(SECOUTPUTBUILDVAR)$(OBJS)$(C_DEPS) rejwan_prosthesis.elf
 	-@echo ' '
 
 secondary-outputs: $(SECOUTPUTBUILDVAR)

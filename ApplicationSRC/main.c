@@ -167,47 +167,34 @@ int main(void) {
 	Pros_state = Dormant_Idle_Stop;
 #endif
 
-//	while (1) {
-//		mpu9255_process();
-//	}
+	long q[4];
+
+	while (1)
+	{
+		// Get quaternions
+		mpu9255_process();
+		dmp_data_t *imu_data = mpu9255_getLast();
+		long *q = imu_data->quaternarion.array;
+	}
+
 	// USB Default mode is USB VCP
 	// Note: Data collection is stopped in Power on Reset. Send the command from PC LabVIEW software in USB VCP Mode to start data collection.
 	// Data collection will resume after USB disconnect.
 	// Only way to stop Data collection is by accessing SD card from PC LabVIEW program
 
-	while (1) {
-
-		if (isProcessKneeRequired) {
+	while (1)
+	{
+		if (isProcessKneeRequired)
+		{
 			processKnee();
 			isProcessKneeRequired = 0;
 		}
-		mpu9255_process();
 
-		// Need to set this up
-//		dmp_data_t *imu_data = mpu9255_getLast();   // UPDATE IMU DATA NOW !!!
-//		short ax = imu_data->acceleration.data.x;
-//		imu_data->acceleration.array[0];
+		mpu9255_process();
 
 		switch (Pros_state) {
 		case LP_STOP:      // Default mode for data collection
 			EnterStop();   // Enter Stop Mode
-//						angle_now=knee_angle();
-
-//						  RED_LED_ONLY();
-//						  delay_us(500000);
-//						  GREEN_LED_ONLY();
-//						  delay_us(500000);
-//						EPOS4_CST_apply_torque(CAN_ID,100);
-//						EPOS4_CST_apply_torque(CAN_ID,100);
-
-			// Wake Up after STOP Mode by LPTIM2_interrupt or USB EXTI Int
-
-			//		Non_critical_Sensor_Error_Handling();  // Handling errors occured in Data log
-			/*						if (DataLog_Pause_ == 1)                     // After detecting DataLogPause Command via EXTI_0 int
-			 {
-			 Pros_state = Data_Log_Pause_Mode;               // Next State Data_Log_Pause_Mode Mode
-			 DataLog_Pause_ = 0;                           // Reset Flag to avoid looping
-			 }*/
 
 			if (USB_Present_ == 1) // After detecting USB attachment via EXTI_5 int
 					{

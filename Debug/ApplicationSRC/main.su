@@ -1,3 +1,7 @@
-main.c:97:5:main	32	static
-main.c:319:6:LPTIM2_IRQHandler	0	static
-main.c:329:6:EXTI9_5_IRQHandler	0	static
+stm32l4xx_ll_exti.h:1188:26:LL_EXTI_IsActiveFlag_0_31	16	static
+stm32l4xx_ll_exti.h:1301:22:LL_EXTI_ClearFlag_0_31	16	static
+stm32l4xx_ll_lptim.h:1031:22:LL_LPTIM_ClearFLAG_ARRM	16	static
+stm32l4xx_ll_lptim.h:1042:26:LL_LPTIM_IsActiveFlag_ARRM	16	static
+main.c:97:5:main	40	static
+main.c:306:6:LPTIM2_IRQHandler	8	static
+main.c:316:6:EXTI9_5_IRQHandler	8	static
