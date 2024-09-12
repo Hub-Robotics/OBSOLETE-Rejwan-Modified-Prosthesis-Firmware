@@ -1,0 +1,10 @@
+core_cm4.h:1637:22:NVIC_DisableIRQ	16	static
+stm32l4xx_ll_exti.h:1188:26:LL_EXTI_IsActiveFlag_0_31	16	static
+stm32l4xx_ll_exti.h:1301:22:LL_EXTI_ClearFlag_0_31	16	static
+stm32l4xx_ll_lptim.h:1031:22:LL_LPTIM_ClearFLAG_ARRM	16	static
+stm32l4xx_ll_lptim.h:1042:26:LL_LPTIM_IsActiveFlag_ARRM	16	static
+stm32l4xx_ll_lptim.h:1215:22:LL_LPTIM_DisableIT_ARRM	16	static
+stm32l4xx_ll_bus.h:553:22:LL_AHB2_GRP1_DisableClock	16	static
+main.c:96:5:main	16	static
+main.c:305:6:LPTIM2_IRQHandler	8	static
+main.c:315:6:EXTI9_5_IRQHandler	8	static
