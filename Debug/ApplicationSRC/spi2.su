@@ -1,7 +1,0 @@
-stm32l4xx_ll_bus.h:477:22:LL_AHB2_GRP1_EnableClock	24	static
-stm32l4xx_ll_bus.h:907:22:LL_APB1_GRP1_EnableClock	24	static
-stm32l4xx_ll_spi.h:378:22:LL_SPI_Enable	16	static
-stm32l4xx_ll_spi.h:685:22:LL_SPI_SetRxFIFOThreshold	16	static
-stm32l4xx_ll_spi.h:894:22:LL_SPI_DisableNSSPulseMgt	16	static
-stm32l4xx_ll_spi.h:1152:22:LL_SPI_DisableIT_RXNE	16	static
-spi2.c:10:6:spi2_init	72	static

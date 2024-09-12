@@ -1,3 +1,0 @@
-MahonyAHRS.c:220:7:invSqrt	0	static
-MahonyAHRS.c:150:6:MahonyAHRSupdateIMU	24	static
-MahonyAHRS.c:46:6:MahonyAHRSupdate	128	static

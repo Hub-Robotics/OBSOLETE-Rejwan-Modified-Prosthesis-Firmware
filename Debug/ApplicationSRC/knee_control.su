@@ -1,4 +1,0 @@
-stm32l4xx_ll_gpio.h:966:22:LL_GPIO_SetOutputPin	16	static
-stm32l4xx_ll_gpio.h:995:22:LL_GPIO_ResetOutputPin	16	static
-knee_control.c:65:6:processKnee	56	static
-knee_control.c:197:17:AccelCal	88	static

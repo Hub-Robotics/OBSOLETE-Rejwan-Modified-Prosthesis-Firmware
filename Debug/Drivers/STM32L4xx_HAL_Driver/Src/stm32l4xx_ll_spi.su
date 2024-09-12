@@ -1,9 +1,0 @@
-stm32l4xx_ll_bus.h:1158:22:LL_APB1_GRP1_ForceReset	16	static
-stm32l4xx_ll_bus.h:1238:22:LL_APB1_GRP1_ReleaseReset	16	static
-stm32l4xx_ll_bus.h:1592:22:LL_APB2_GRP1_ForceReset	16	static
-stm32l4xx_ll_bus.h:1629:22:LL_APB2_GRP1_ReleaseReset	16	static
-stm32l4xx_ll_spi.h:401:26:LL_SPI_IsEnabled	16	static
-stm32l4xx_ll_spi.h:794:22:LL_SPI_SetCRCPolynomial	16	static
-stm32l4xx_ll_spi.c:151:13:LL_SPI_DeInit	24	static
-stm32l4xx_ll_spi.c:206:13:LL_SPI_Init	24	static
-stm32l4xx_ll_spi.c:274:6:LL_SPI_StructInit	16	static
